@@ -4,17 +4,18 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageProjectUrl>https://davidwalker.visualstudio.com/AppBlocks.Models</PackageProjectUrl>
-    <RepositoryUrl>https://davidwalker.visualstudio.com/_git/AppBlocks.Models</RepositoryUrl>
+    <PackageProjectUrl>https://appblocks.net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/appblocksnet/appblocks.models</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>The BASE of ALL THE THINGS</Description>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
     <FileVersion>0.0.0.0</FileVersion>
     <Version>0.0.0</Version>
-    <Company>AppBlocks</Company>
-    <Authors>David Walker, Radical Dave, Sitecore Dave</Authors>
+    <Company>AppBlocks, Radical Dave</Company>
+    <Authors>David Walker, Radical Dave</Authors>
     <Copyright>AppBlocks</Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -35,5 +36,12 @@
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012" />
     <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 </Project>

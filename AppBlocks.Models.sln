@@ -8,10 +8,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{77592FF6-5941-440C-8D59-3ABFF9F57F74}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		.github\workflows\main.yml = .github\workflows\main.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppBlocks.Models.Tests", "tests\AppBlocks.Models.Tests.csproj", "{D5053005-83EA-4C88-9DB8-F9F840C6FEB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppBlocks.Models.Tests", "tests\AppBlocks.Models.Tests.csproj", "{D5053005-83EA-4C88-9DB8-F9F840C6FEB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

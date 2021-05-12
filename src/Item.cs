@@ -2,6 +2,7 @@
 using AppBlocks.Models.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
@@ -31,23 +32,15 @@ namespace AppBlocks.Models
         public Item(string json) => FromItem(FromJson<Item>(json));
 
         public Item(List<Item> items) => FromItem(FromList<Item>(items));
-
+        ////(this IConfigurationRoot config) => config.GetSection("AppBlocks").AsEnumerable().ToImmutableDictionary(x => x.Key, x => x.Value);
         #endregion
 
-        private string status;
+        [JsonPropertyName("settings")]
+        public ImmutableDictionary<string, string> Settings { get; set; }
+
+        [JsonPropertyName("status")]
         [IgnoreDataMember]
-        public string Status
-        {
-            get
-            {
-                return status;
-            }
-            set
-            {
-                Trace.WriteLine($"{Id}-status:{value}-{status}");
-                status = value;
-            }
-        }
+        public string Status { get; set; }
 
         [JsonPropertyName("fullPath")]
         [NotMapped]
@@ -217,7 +210,7 @@ namespace AppBlocks.Models
                 //TODO: other filters? Errors?
                 if (!string.IsNullOrEmpty(jsonFile)) json = jsonFile;
 
-                if (string.IsNullOrEmpty(json) || json == Settings.GroupId) return default;
+                if (string.IsNullOrEmpty(json) || json == Models.Settings.GroupId) return default;
 
                 var jsonTrimmed = json.Trim();
                 if (!jsonTrimmed.StartsWith("[") && !jsonTrimmed.StartsWith("{")) return default;
@@ -299,14 +292,14 @@ namespace AppBlocks.Models
         /// FromList
         /// </summary>
         /// <param name="items"></param>
-        public static T FromList<T>(List<Item> items) where T : Item => (items.SetChildren().SingleOrDefault(i => i.TypeId == Settings.GroupTypeId) ?? items.SetChildren().FirstOrDefault()) as T;
+        public static T FromList<T>(List<Item> items) where T : Item => (items.SetChildren().SingleOrDefault(i => i.TypeId == Models.Settings.GroupTypeId) ?? items.SetChildren().FirstOrDefault()) as T;
 
         /// <summary>
         /// FromService
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static T FromService<T>(string id = null) where T : Item => FromJson<T>(!string.IsNullOrEmpty(id) ? id : Settings.GroupId);
+        public static T FromService<T>(string id = null) where T : Item => FromJson<T>(!string.IsNullOrEmpty(id) ? id : Models.Settings.GroupId);
 
         //if (string.IsNullOrEmpty(id)) id = Settings.GroupId;
         //Trace.WriteLine($"{typeof(T).Name}.FromService({id}) started:{DateTime.Now.ToShortTimeString()}");

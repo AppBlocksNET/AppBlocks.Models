@@ -25,7 +25,11 @@ namespace AppBlocks.Models
         public event PropertyChangedEventHandler PropertyChanged;
 
         #region Constructors
-        public Item() => Children = new List<Item>();
+        public Item()
+        {
+            Children = new List<Item>();
+            if (Settings == null) Settings = ImmutableDictionary.CreateBuilder<string, string>().ToImmutableDictionary();
+        }
 
         public Item(Uri sourceUri) => FromItem(FromUri<Item>(sourceUri));
 
@@ -35,7 +39,7 @@ namespace AppBlocks.Models
         ////(this IConfigurationRoot config) => config.GetSection("AppBlocks").AsEnumerable().ToImmutableDictionary(x => x.Key, x => x.Value);
         #endregion
 
-        public string GetSetting(string key, string defaultValue = null) => Settings.GetValueOrDefault(key, defaultValue);
+        public T GetSetting<T>(string key, string defaultValue = null) => (T)Convert.ChangeType(Settings?.GetValueOrDefault(key, defaultValue) ?? defaultValue, typeof(T));
 
         [JsonPropertyName("settings")]
         public ImmutableDictionary<string, string> Settings { get; set; }

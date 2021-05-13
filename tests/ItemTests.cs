@@ -109,6 +109,42 @@ namespace AppBlocks.Models.Tests
         }
 
         [TestMethod]
+        public void ItemSettingsTest()
+        {
+            var testItem = new Item("test");
+            Assert.IsNotNull(testItem);
+            var setting = testItem.GetSetting<string>("Test", "1");
+            Assert.IsTrue(setting == "1");
+        }
+
+        [TestMethod]
+        public void ItemSettingsText()
+        {
+            var testItem = new Item("test");
+            Assert.IsNotNull(testItem);
+            var setting = testItem.GetSetting<string>("color", "blue");
+            Assert.IsTrue(setting == "blue");
+        }
+
+        [TestMethod]
+        public void ItemSettingsBoolTrue()
+        {
+            var testItem = new Item("test");
+            Assert.IsNotNull(testItem);
+            var setting = testItem.GetSetting<bool>("favorite", "1");
+            Assert.IsTrue(setting);
+        }
+
+        [TestMethod]
+        public void ItemSettingsBoolFalse()
+        {
+            var testItem = new Item("test");
+            Assert.IsNotNull(testItem);
+            var setting = testItem.GetSetting<bool>("favorite", "0");
+            Assert.IsTrue(!setting);
+        }
+
+        [TestMethod]
         public void ToFromFileTest()
         {
             var testItem = new Item() { Id="test",Name="test",Title="test"};

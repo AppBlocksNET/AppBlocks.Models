@@ -9,14 +9,14 @@
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>The BASE of ALL THE THINGS</Description>
-    <AssemblyVersion>0.0.2.0</AssemblyVersion>
-    <FileVersion>0.0.2.0</FileVersion>
-    <Version>0.0.2</Version>
+    <AssemblyVersion>0.0.3.0</AssemblyVersion>
+    <FileVersion>0.0.3.0</FileVersion>
+    <Version>0.0.3</Version>
     <Company>AppBlocks, Radical Dave</Company>
     <Authors>David Walker, Radical Dave</Authors>
     <Copyright>AppBlocks</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>added GetSetting to Item, ExtendedBindableObject, ViewModelBaseModel</PackageReleaseNotes>
+    <PackageReleaseNotes>changed GetSetting to generic, added CancelEventArgs, FacebookProfile, Location</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

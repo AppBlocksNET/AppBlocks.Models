@@ -9,14 +9,14 @@
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>The BASE of ALL THE THINGS</Description>
-    <AssemblyVersion>0.0.3.0</AssemblyVersion>
-    <FileVersion>0.0.3.0</FileVersion>
-    <Version>0.0.3</Version>
+    <AssemblyVersion>0.0.4.0</AssemblyVersion>
+    <FileVersion>0.0.4.0</FileVersion>
+    <Version>0.0.4</Version>
     <Company>AppBlocks, Radical Dave</Company>
     <Authors>David Walker, Radical Dave</Authors>
     <Copyright>AppBlocks</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>changed GetSetting to generic, added CancelEventArgs, FacebookProfile, Location</PackageReleaseNotes>
+    <PackageReleaseNotes>added LogoutParameter</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

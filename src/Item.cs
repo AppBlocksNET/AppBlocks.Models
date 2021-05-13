@@ -35,6 +35,8 @@ namespace AppBlocks.Models
         ////(this IConfigurationRoot config) => config.GetSection("AppBlocks").AsEnumerable().ToImmutableDictionary(x => x.Key, x => x.Value);
         #endregion
 
+        public string GetSetting(string key, string defaultValue = null) => Settings.GetValueOrDefault(key, defaultValue);
+
         [JsonPropertyName("settings")]
         public ImmutableDictionary<string, string> Settings { get; set; }
 

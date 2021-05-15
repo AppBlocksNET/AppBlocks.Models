@@ -23,9 +23,8 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void EnvNotNullTest()
         {
-            //this is wrong! So far Tests cannot get ENV_VAR from VS
             Console.WriteLine($"Models.Settings.Env:{Models.Settings.Env}");
-            Assert.IsTrue(Models.Settings.Env == null);
+            Assert.IsTrue(!string.IsNullOrEmpty(Models.Settings.Env));
         }
 
         [TestMethod]

@@ -28,7 +28,7 @@ namespace AppBlocks.Models
         public Item()
         {
             Children = new List<Item>();
-            if (Settings == null) Settings = ImmutableDictionary.CreateBuilder<string, string>().ToImmutableDictionary();
+            if (Settings == null) Settings = new Dictionary<string, string>();
         }
 
         public Item(Uri sourceUri) => FromItem(FromUri<Item>(sourceUri));
@@ -39,10 +39,10 @@ namespace AppBlocks.Models
         ////(this IConfigurationRoot config) => config.GetSection("AppBlocks").AsEnumerable().ToImmutableDictionary(x => x.Key, x => x.Value);
         #endregion
 
-        public T GetSetting<T>(string key, string defaultValue = null) => (T)Convert.ChangeType(Settings?.GetValueOrDefault(key, defaultValue) ?? defaultValue, typeof(T));
+        public T GetSetting<T>(string key, string defaultValue = null) => (T)Convert.ChangeType(Settings.GetValueOrDefault(key, defaultValue) ?? defaultValue, typeof(T));
 
         [JsonPropertyName("settings")]
-        public ImmutableDictionary<string, string> Settings { get; set; }
+        public Dictionary<string, string> Settings { get; set; }
 
         [JsonPropertyName("status")]
         [IgnoreDataMember]
@@ -202,20 +202,17 @@ namespace AppBlocks.Models
         /// <param name="json"></param>
         public static T FromJson<T>(string json) where T : Item
         {
-            if (string.IsNullOrEmpty(json)) return default;
             Trace.WriteLine($"{typeof(Item).Name}.FromJson<{typeof(T).Name}>({json}) started:{DateTime.Now.ToShortTimeString()}");
 
-            if (json.ToLower().StartsWith("http"))
+            var jsonFile = FromFile(json, typeof(T).Name);
+            if (!string.IsNullOrEmpty(jsonFile)) json = jsonFile;
+
+            if (json.ToLower().StartsWith("http") || json == Models.Settings.GroupId || string.IsNullOrEmpty(json))
             {
-                return FromUri<T>(new Uri(json));
+                return FromUri<T>(json != Models.Settings.GroupId ? new Uri(json) : null);
             }
             else
             {
-                var jsonFile = FromFile(json, typeof(T).Name);
-
-                //TODO: other filters? Errors?
-                if (!string.IsNullOrEmpty(jsonFile)) json = jsonFile;
-
                 if (string.IsNullOrEmpty(json) || json == Models.Settings.GroupId) return default;
 
                 var jsonTrimmed = json.Trim();
@@ -248,17 +245,17 @@ namespace AppBlocks.Models
         {
             Trace.WriteLine($"{typeof(Item).Name}.Read({filePathOrId}) started:{DateTime.Now.ToShortTimeString()}");
 
-            if (System.IO.File.Exists(filePathOrId))
+            if (File.Exists(filePathOrId))
             {
                 Trace.WriteLine($"{typeof(Item).Name}.Read({filePathOrId}) found:{filePathOrId}");
                 return System.IO.File.ReadAllText(filePathOrId);
             }
 
             var filePath = GetFilepath(filePathOrId, typeName);
-            if (System.IO.File.Exists(filePath))
+            if (File.Exists(filePath))
             {
                 Trace.WriteLine($"{typeof(Item).Name}.Read({filePathOrId}) found:{filePath}");
-                return System.IO.File.ReadAllText(filePath);
+                return File.ReadAllText(filePath);
             }
             Trace.WriteLine($"{typeof(Item).Name}.Read({filePathOrId}):no file found");
             return null;
@@ -352,37 +349,44 @@ namespace AppBlocks.Models
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public static T FromUri<T>(Uri uri) where T : Item
+        public static T FromUri<T>(Uri uri = null) where T : Item
         {
             Trace.WriteLine($"{typeof(Item).Name}.FromUri({uri}) started:{DateTime.Now.ToShortTimeString()}");
             var content = string.Empty;
-            var request = (HttpWebRequest)WebRequest.Create(uri);
-            request.ServerCertificateValidationCallback = (message, cert, chain, errors) => { return true; };
-            // response.GetResponseStream();
-            using (var response = (HttpWebResponse)request.GetResponse())
+            try
             {
-                Trace.WriteLine($"HttpStatusCode:{response.StatusCode}");
-                var responseValue = string.Empty;
-                if (response.StatusCode != HttpStatusCode.OK)
+                if (uri == null) uri = new Uri(Models.Settings.AppBlocksBlocksServiceUrl + "{Id}");
+                var request = (HttpWebRequest)WebRequest.Create(uri);
+                request.ServerCertificateValidationCallback = (message, cert, chain, errors) => { return true; };
+                // response.GetResponseStream();
+                using (var response = (HttpWebResponse)request.GetResponse())
                 {
-                    var message = string.Format("{App.AppName ERROR: }Request failed. Received HTTP {0}", response.StatusCode);
-                    throw new ApplicationException(message);
-                }
+                    Trace.WriteLine($"HttpStatusCode:{response.StatusCode}");
+                    var responseValue = string.Empty;
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        var message = string.Format("{App.AppName ERROR: }Request failed. Received HTTP {0}", response.StatusCode);
+                        throw new ApplicationException(message);
+                    }
 
-                // grab the response
-                using (var responseStream = response.GetResponseStream())
-                {
-                    if (responseStream != null)
-                        using (var reader = new StreamReader(responseStream))
-                        {
-                            responseValue = reader.ReadToEnd();
-                        }
-                }
+                    // grab the response
+                    using (var responseStream = response.GetResponseStream())
+                    {
+                        if (responseStream != null)
+                            using (var reader = new StreamReader(responseStream))
+                            {
+                                responseValue = reader.ReadToEnd();
+                            }
+                    }
 
-                content = responseValue;
+                    content = responseValue;
+                }
             }
-
-            Trace.WriteLine($"Going to deseriaize:{content}");
+            catch (Exception exception)
+            {
+                Trace.WriteLine($"{nameof(Item)}.FromUri({uri}) ERROR:{exception.Message} {exception}");
+            }
+            Trace.WriteLine($"content:{content}");
 
             return FromJson<T>(content);
         }

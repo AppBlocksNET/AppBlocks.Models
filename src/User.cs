@@ -10,7 +10,6 @@ namespace AppBlocks.Models
         [JsonPropertyName("password")]
         public string Password { get; set; }
 
-
         //[JsonIgnore]
         //public string Json => JsonConvert.SerializeObject(this);
 
@@ -55,13 +54,16 @@ namespace AppBlocks.Models
         {
             if (string.IsNullOrEmpty(password)) password = $"{username}!";
             var userRequest = new User() { Username = username, Password = password };
-            var results = User.FromJson<User>(userRequest.ToJson());
+            var results = FromJson<User>(userRequest.ToJson());
 
             if (results != null)
             {
-                CurrentUser.Email = username;
-                CurrentUser.Password = password;
-                return true;
+                if (CurrentUser != null)
+                {
+                    CurrentUser.Email = username;
+                    CurrentUser.Password = password;
+                    return true;
+                }
             }
             return false;
         }

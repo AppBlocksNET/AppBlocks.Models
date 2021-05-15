@@ -19,7 +19,7 @@ namespace AppBlocks.Models.Tests
         public void GroupIdSettingsTest()
         {
             Console.WriteLine($"Models.Settings.GroupId:{Models.Settings.GroupId}");
-            Assert.IsTrue(Models.Settings.GroupId == "11111111-1111-1111-1111-111111111111", Models.Settings.GroupId);
+            Assert.IsTrue(Models.Settings.GroupId == "AppBlocks.Core.Test.App", Models.Settings.GroupId);
         }
 
         [TestMethod]

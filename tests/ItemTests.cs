@@ -87,9 +87,9 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void ItemHttpTest()
         {
-            var item = new Item(new System.Uri($"{Models.Settings.AppBlocksBlocksServiceUrl}{Models.Settings.GroupId}"));
-
-            //Assert.IsTrue(group != null && group.Id == "Test");
+            var group = Models.Settings.GroupId;
+            Assert.IsTrue(group != null && group != "Test");
+            var item = new Item(new System.Uri($"{Models.Settings.AppBlocksBlocksServiceUrl}{group}"));
 
             Assert.IsTrue(item.Children != null);
 
@@ -131,7 +131,7 @@ namespace AppBlocks.Models.Tests
         {
             var testItem = new Item("test");
             Assert.IsNotNull(testItem);
-            var setting = testItem.GetSetting<bool>("favorite", "1");
+            var setting = testItem.GetSetting<bool>("favorite", "true");
             Assert.IsTrue(setting);
         }
 
@@ -140,7 +140,7 @@ namespace AppBlocks.Models.Tests
         {
             var testItem = new Item("test");
             Assert.IsNotNull(testItem);
-            var setting = testItem.GetSetting<bool>("favorite", "0");
+            var setting = testItem.GetSetting<bool>("favorite", "false");
             Assert.IsTrue(!setting);
         }
 

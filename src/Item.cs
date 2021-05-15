@@ -28,7 +28,7 @@ namespace AppBlocks.Models
         public Item()
         {
             Children = new List<Item>();
-            if (Settings == null) Settings = new Dictionary<string, string>();
+            if (Settings == null) Settings = new List<Setting>();
         }
 
         public Item(Uri sourceUri) => FromItem(FromUri<Item>(sourceUri));
@@ -42,7 +42,7 @@ namespace AppBlocks.Models
         public T GetSetting<T>(string key, string defaultValue = null) => (T)Convert.ChangeType(Settings.GetValueOrDefault(key, defaultValue) ?? defaultValue, typeof(T));
 
         [JsonPropertyName("settings")]
-        public Dictionary<string, string> Settings { get; set; }
+        public ICollection<Setting> Settings { get; set; }
 
         [JsonPropertyName("status")]
         [IgnoreDataMember]
@@ -209,7 +209,7 @@ namespace AppBlocks.Models
 
             if (json.ToLower().StartsWith("http") || json == Models.Settings.GroupId || string.IsNullOrEmpty(json))
             {
-                return FromUri<T>(json != Models.Settings.GroupId ? new Uri(json) : null);
+                return FromUri<T>(!string.IsNullOrEmpty(json) && json != Models.Settings.GroupId ? new Uri(json) : null);
             }
             else
             {
@@ -355,7 +355,7 @@ namespace AppBlocks.Models
             var content = string.Empty;
             try
             {
-                if (uri == null) uri = new Uri(Models.Settings.AppBlocksBlocksServiceUrl + "{Id}");
+                if (uri == null) uri = new Uri(Models.Settings.AppBlocksBlocksServiceUrl + Models.Settings.GroupId);
                 var request = (HttpWebRequest)WebRequest.Create(uri);
                 request.ServerCertificateValidationCallback = (message, cert, chain, errors) => { return true; };
                 // response.GetResponseStream();

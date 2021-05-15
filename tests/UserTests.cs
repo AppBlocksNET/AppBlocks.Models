@@ -19,6 +19,13 @@ namespace AppBlocks.Models.Tests
         }
 
         [TestMethod]
+        public void AuthenticateBadUserTest()
+        {
+            var results = User.Authenticate("bad", "user");
+            Assert.IsFalse(results);
+        }
+
+        [TestMethod]
         public void CurrentUserKeyTest()
         {
             var results = new User(Settings.TestUserId);

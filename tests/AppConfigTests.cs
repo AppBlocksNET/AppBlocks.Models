@@ -21,19 +21,5 @@ namespace AppBlocks.Models.Tests
             Console.WriteLine($"Models.Settings.GroupId:{Models.Settings.GroupId}");
             Assert.IsTrue(Models.Settings.GroupId == "AppBlocks.Core.Test.App", Models.Settings.GroupId);
         }
-
-        [TestMethod]
-        public void TestUserIdTest()
-        {
-            Console.WriteLine($"Settings.TestUserId:{Settings.TestUserId}");
-            Assert.IsTrue(Settings.TestUserId != null);
-        }
-
-        [TestMethod]
-        public void TestSettingTest()
-        {
-            Console.WriteLine($"Settings.TestSetting:{Settings.TestSetting}");
-            Assert.IsTrue(Settings.TestSetting != null);
-        }
     }
 }

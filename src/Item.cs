@@ -202,10 +202,16 @@ namespace AppBlocks.Models
         /// <param name="json"></param>
         public static T FromJson<T>(string json) where T : Item
         {
-            Trace.WriteLine($"{typeof(Item).Name}.FromJson<{typeof(T).Name}>({json}) started:{DateTime.Now.ToShortTimeString()}");
+            var typeName = typeof(T).Name;
+            Trace.WriteLine($"{typeof(Item).Name}.FromJson<{typeName}>({json}) started:{DateTime.Now.ToShortTimeString()}");
 
-            var jsonFile = FromFile(json, typeof(T).Name);
+            var jsonFile = FromFile(json, typeName);
             if (!string.IsNullOrEmpty(jsonFile)) json = jsonFile;
+
+            if (typeName == "AppBlocks.Models.User")
+            {
+                //json = "";
+            }
 
             if (json.ToLower().StartsWith("http") || json == Models.Settings.GroupId || string.IsNullOrEmpty(json))
             {

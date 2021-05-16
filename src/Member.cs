@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -9,6 +10,9 @@ namespace AppBlocks.Models
     {
         //[DataMember(Name="id")]
         //public string Id { get; set; }
+
+        [StringLength(450)]
+        public string UserId { get; set; }
 
         [DataMember(Name="username")]
         [JsonPropertyName("username")]
@@ -39,9 +43,9 @@ namespace AppBlocks.Models
         [JsonPropertyName("phone")]
         public string Phone { get; set; }
 
-        [DataMember(Name="shirtsize")]
-        [JsonPropertyName("shirtsize")]
-        public string ShirtSize { get; set; }
+        //[DataMember(Name="shirtsize")]
+        //[JsonPropertyName("shirtsize")]
+        //public string ShirtSize { get; set; }
 
         //[DataMember(Name="status")]
         //public string Status { get; set; }
@@ -85,12 +89,13 @@ namespace AppBlocks.Models
 
             var member = JsonSerializer.Deserialize<Member>(json);
 
+            UserId = member.UserId;
             Email = member.Email;
             //Password = user.Password;
             Username = member.Username;
             Image = member.Image;
             if (string.IsNullOrEmpty(Image)) Image = "";// App.DefaultProfileImageUrl;
-            ShirtSize = member.ShirtSize;
+            //ShirtSize = member.ShirtSize;
             FirstName = member.FirstName;
             LastName = member.LastName;
             Phone = member.Phone;

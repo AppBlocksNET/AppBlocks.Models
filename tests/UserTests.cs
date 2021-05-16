@@ -2,7 +2,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection.Metadata;
 using System.Text;
 
 namespace AppBlocks.Models.Tests
@@ -13,8 +12,9 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void AuthenticateTest()
         {
-            var results = User.Authenticate(Settings.TestUserId, Settings.TestUserPwd);
-            Console.WriteLine($"Settings.TestUserId:{Settings.TestUserId}");
+            //AppConfig.GetConfig()
+            var results = User.Authenticate(AppConfig.TestUserId, AppConfig.TestUserPwd);
+            Console.WriteLine($"AppConfig.TestUserId:{AppConfig.TestUserId}");
             Assert.IsTrue(results);
         }
 
@@ -28,8 +28,8 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void CurrentUserKeyTest()
         {
-            var results = new User(Settings.TestUserId);
-            Console.WriteLine($"Settings.TestUserId:{Settings.TestUserId}");
+            var results = new User(AppConfig.TestUserId);
+            Console.WriteLine($"Settings.TestUserId:{AppConfig.TestUserId}");
             Assert.IsTrue(results != null);
         }
 
@@ -38,7 +38,7 @@ namespace AppBlocks.Models.Tests
         public void UserDeserializationTest()
         {
             var path = $".\\data-tests\\UserDeserializationTest.json";
-            var content = System.IO.File.Exists(path) ? System.IO.File.ReadAllText(path) : "";
+            var content = File.Exists(path) ? System.IO.File.ReadAllText(path) : "";
             Assert.IsTrue(!string.IsNullOrEmpty(content), $"{path} not found");
 
             //var value = content;
@@ -67,20 +67,20 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void FileTest()
         {//TODO: read the data\itemtest.json file - a known filename\location
-            var testItem = User.FromJson<User>(Settings.TestUserId);
+            var testItem = User.FromJson<User>(AppConfig.TestUserId);
             Assert.IsTrue(testItem != null);
             var write = testItem.ToFile<User>();
             Assert.IsTrue(write);
-            Assert.IsTrue(System.IO.File.Exists(testItem.GetFilename("User")));
+            Assert.IsTrue(File.Exists(testItem.GetFilename("User")));
         }
 
         [TestMethod]
         public void WriteReadTest()
         {
-            var item = new User() { Id = Settings.TestUserId, Name = Settings.TestUserId, Title = Settings.TestUserId, Password = Settings.TestUserId, Email = Settings.TestUserId };
+            var item = new User() { Id = AppConfig.TestUserId, Name = AppConfig.TestUserId, Title = AppConfig.TestUserId, Password = AppConfig.TestUserId, Email = AppConfig.TestUserId };
             var write = item.ToFile<User>();
             Assert.IsTrue(write);
-            Assert.IsTrue(System.IO.File.Exists(item.GetFilename("User")));
+            Assert.IsTrue(File.Exists(item.GetFilename("User")));
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -24,7 +23,7 @@ namespace AppBlocks.Models
             //var user = JsonConvert.DeserializeObject<User>(json);
             var user = FromJson<User>(json);
             if (user == null) return;
-
+            UserId = user.UserId;
             Email = user.Email;
             Password = user.Password;
             Username = user.Username;
@@ -33,7 +32,7 @@ namespace AppBlocks.Models
             //if (string.IsNullOrEmpty(Image)) Image = "http://radicaldave.com/images/Personal/DavidWalker_Hardcore_170_bigger.jpg";
             //if (string.IsNullOrEmpty(Image)) Image = App.DefaultProfileImageUrl; // "logo.png";
 
-            ShirtSize = user.ShirtSize;
+            //ShirtSize = user.ShirtSize;
             FirstName = user.FirstName;
             LastName = user.LastName;
             Phone = user.Phone;
@@ -52,18 +51,22 @@ namespace AppBlocks.Models
 
         public static bool Authenticate(string username, string password)
         {
-            if (string.IsNullOrEmpty(password)) password = $"{username}!";
+            if (string.IsNullOrEmpty(password)) password = $"{username}Blocks!";
             var userRequest = new User() { Username = username, Password = password };
             var results = FromJson<User>(userRequest.ToJson());
 
             if (results != null)
             {
-                if (CurrentUser != null)
+                if (CurrentUser == null) 
+                { 
+                    CurrentUser = results;
+                }
+                else
                 {
                     CurrentUser.Email = username;
                     CurrentUser.Password = password;
-                    return true;
                 }
+                return string.IsNullOrEmpty($"{CurrentUser.Email}{CurrentUser.Password}");
             }
             return false;
         }

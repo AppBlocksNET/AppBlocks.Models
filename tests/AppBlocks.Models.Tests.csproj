@@ -11,6 +11,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Settings.cs" />
+    <Compile Remove="SettingsTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="appsettings.json" />
     <None Remove="Data-Tests\AppBlocksApiAllTests.json" />
     <None Remove="Data-Tests\ItemChildrenDeserializationTest.json" />

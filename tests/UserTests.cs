@@ -77,7 +77,7 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void WriteReadTest()
         {
-            var item = new User() { Id = AppConfig.TestUserId, Name = AppConfig.TestUserId, Title = AppConfig.TestUserId, Password = AppConfig.TestUserId, Email = AppConfig.TestUserId };
+            var item = new User() { Id = AppConfig.TestUserId, UserName = AppConfig.TestUserId };//, Title = AppConfig.TestUserId, Password = AppConfig.TestUserId, Email = AppConfig.TestUserId };
             var write = item.ToFile<User>();
             Assert.IsTrue(write);
             Assert.IsTrue(File.Exists(item.GetFilename("User")));

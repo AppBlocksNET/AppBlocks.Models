@@ -83,8 +83,8 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void FromServiceCleanTest()
         {
-            if (System.IO.File.Exists(Item.GetFilepath(Models.Settings.GroupId))) System.IO.File.Delete(Item.GetFilepath(Models.Settings.GroupId));
-            Assert.IsFalse(System.IO.File.Exists(Item.GetFilepath(Models.Settings.GroupId)));
+            if (System.IO.File.Exists(Common.GetFilepath(Models.Settings.GroupId))) System.IO.File.Delete(Common.GetFilepath(Models.Settings.GroupId));
+            Assert.IsFalse(System.IO.File.Exists(Common.GetFilepath(Models.Settings.GroupId)));
             var item = Item.FromService<Item>();
             Assert.IsTrue(item != null);
             Assert.IsTrue(item.Children.Count() > 2);

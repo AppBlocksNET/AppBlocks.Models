@@ -1,13 +1,22 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.AspNet.Identity.EntityFramework;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace AppBlocks.Models
 {
-    public class User : Member
+    public class User : IdentityUser
     {
-        [JsonPropertyName("password")]
-        public string Password { get; set; }
+        [JsonPropertyName("item")]
+        public Item Item { get; set; }
+
+        //[JsonPropertyName("password")]
+        //public string Password { get; set; }
 
         //[JsonIgnore]
         //public string Json => JsonConvert.SerializeObject(this);
@@ -23,21 +32,21 @@ namespace AppBlocks.Models
             //var user = JsonConvert.DeserializeObject<User>(json);
             var user = FromJson<User>(json);
             if (user == null) return;
-            UserId = user.UserId;
+            //UserId = user.UserId;
             Email = user.Email;
-            Password = user.Password;
-            Username = user.Username;
-            Image = user.Image;
+            //Password = user.Password;
+            //Username = user.Username;
+            //Image = user.Image;
 
             //if (string.IsNullOrEmpty(Image)) Image = "http://radicaldave.com/images/Personal/DavidWalker_Hardcore_170_bigger.jpg";
             //if (string.IsNullOrEmpty(Image)) Image = App.DefaultProfileImageUrl; // "logo.png";
 
             //ShirtSize = user.ShirtSize;
-            FirstName = user.FirstName;
-            LastName = user.LastName;
-            Phone = user.Phone;
-            Zipcode = user.Zipcode;
-            HideContactInfo = user.HideContactInfo;
+            //FirstName = user.FirstName;
+            //LastName = user.LastName;
+            //Phone = user.Phone;
+            //Zipcode = user.Zipcode;
+            //HideContactInfo = user.HideContactInfo;
             //JeepImage = "https://grouplings.blob.core.windows.net/grouplings-groups/JeepersAnonymous/Members/vicepresident%40jeepersanonymous.org.jpg";
             //JeepModel = user.JeepModel;
             //JeepName = user.JeepName;
@@ -51,8 +60,8 @@ namespace AppBlocks.Models
 
         public static bool Authenticate(string username, string password)
         {
-            if (string.IsNullOrEmpty(password)) password = $"{username}Blocks!";
-            var userRequest = new User() { Username = username, Password = password };
+            //if (string.IsNullOrEmpty(password)) password = $"{username}Blocks!";
+            var userRequest = new User() { UserName = username };
             var results = FromJson<User>(userRequest.ToJson());
 
             if (results != null)
@@ -64,9 +73,10 @@ namespace AppBlocks.Models
                 else
                 {
                     CurrentUser.Email = username;
-                    CurrentUser.Password = password;
+                    //CurrentUser.Password = password;
                 }
-                return string.IsNullOrEmpty($"{CurrentUser.Email}{CurrentUser.Password}");
+                //return string.IsNullOrEmpty($"{CurrentUser.Email}{CurrentUser.Password}");
+                return string.IsNullOrEmpty(CurrentUser.Email);
             }
             return false;
         }
@@ -77,8 +87,8 @@ namespace AppBlocks.Models
             {
                 if (CurrentUser == null) return false;
 
-                var results = CurrentUser != null && !string.IsNullOrEmpty(CurrentUser.Email) && !string.IsNullOrEmpty(CurrentUser.Password) && !string.IsNullOrEmpty(CurrentUser.Username);
-                Trace.WriteLine($"{CurrentUser.Username}.IsAuthenticated:{results}");
+                var results = CurrentUser != null && !string.IsNullOrEmpty(CurrentUser.Email) && !string.IsNullOrEmpty(CurrentUser.PasswordHash) && !string.IsNullOrEmpty(CurrentUser.UserName);
+                Trace.WriteLine($"{CurrentUser.UserName}.IsAuthenticated:{results}");
                 return results;
             }
         }
@@ -140,8 +150,130 @@ namespace AppBlocks.Models
         /// GetFilename
         /// </summary>
         /// <returns></returns>
-        public override string GetFilename(string typeName = "Item") => GetFilepath(Email, typeName);
+        public string GetFilename(string typeName = "Item") => Common.GetFilepath(Email, typeName);
 
-        public override string ToJson() => JsonSerializer.Serialize(this);
+        public string ToJson() => JsonSerializer.Serialize(this);
+
+
+        /// <summary>
+        /// FromJson
+        /// </summary>
+        /// <param name="json"></param>
+        public static T FromJson<T>(string json) where T : User
+        {
+            var typeName = typeof(T).FullName;
+            Trace.WriteLine($"{typeof(Item).Name}.FromJson<{typeName}>({json}) started:{DateTime.Now.ToShortTimeString()}");
+
+            var jsonFile = Common.FromFile(json, typeName);
+            if (!string.IsNullOrEmpty(jsonFile)) json = jsonFile;
+
+            if (typeName == "AppBlocks.Models.User")
+            {
+                json = Models.Settings.AppBlocksBlocksServiceUrl + "/account/authenticate";// Models.Settings.GroupId
+            }
+
+            if (json.ToLower().StartsWith("http") || json == Models.Settings.GroupId || string.IsNullOrEmpty(json))
+            {
+                return FromUri<T>(!string.IsNullOrEmpty(json) && json != Models.Settings.GroupId ? new Uri(json) : null);
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(json) || json == Models.Settings.GroupId) return default;
+
+                var jsonTrimmed = json.Trim();
+                if (!jsonTrimmed.StartsWith("[") && !jsonTrimmed.StartsWith("{")) return default;
+
+                var array = json.StartsWith("[") && json.EndsWith("]");
+
+                if (!array) return JsonSerializer.Deserialize<T>(json);
+
+                var items = JsonSerializer.Deserialize<List<T>>(json);
+
+                if (items == null) return default;
+
+                var item = items.FirstOrDefault();
+                //item.SetChildren(items);
+                return item;
+            }
+        }
+
+
+        /// <summary>
+        /// FromUri
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        public static T FromUri<T>(Uri uri = null) where T : User
+        {
+            Trace.WriteLine($"{typeof(Item).Name}.FromUri({uri}) started:{DateTime.Now.ToShortTimeString()}");
+            var content = string.Empty;
+            try
+            {
+                if (uri == null) uri = new Uri(Models.Settings.AppBlocksBlocksServiceUrl + Models.Settings.GroupId);
+                var request = (HttpWebRequest)WebRequest.Create(uri);
+                request.ServerCertificateValidationCallback = (message, cert, chain, errors) => { return true; };
+                // response.GetResponseStream();
+                using (var response = (HttpWebResponse)request.GetResponse())
+                {
+                    Trace.WriteLine($"HttpStatusCode:{response.StatusCode}");
+                    var responseValue = string.Empty;
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        var message = string.Format("{App.AppName ERROR: }Request failed. Received HTTP {0}", response.StatusCode);
+                        throw new ApplicationException(message);
+                    }
+
+                    // grab the response
+                    using (var responseStream = response.GetResponseStream())
+                    {
+                        if (responseStream != null)
+                            using (var reader = new StreamReader(responseStream))
+                            {
+                                responseValue = reader.ReadToEnd();
+                            }
+                    }
+
+                    content = responseValue;
+                }
+            }
+            catch (Exception exception)
+            {
+                Trace.WriteLine($"{nameof(Item)}.FromUri({uri}) ERROR:{exception.Message} {exception}");
+            }
+            Trace.WriteLine($"content:{content}");
+
+            return FromJson<T>(content);
+        }
+
+
+        /// <summary>
+        /// ToFile
+        /// </summary>
+        /// <returns></returns>
+        public bool ToFile<T>(string filePath = null) where T : User
+        {
+            try
+            {
+                Trace.WriteLine($"{typeof(T).Name}.ToFile({filePath}): {DateTime.Now.ToShortTimeString()} started");
+
+                if (string.IsNullOrEmpty(filePath)) filePath = GetFilename(typeof(T).Name);
+
+                if (string.IsNullOrEmpty(filePath) || filePath.EndsWith($"{typeof(T).Name}..json")) return false;
+
+                new FileInfo(filePath).Directory.Create();
+                var content = ToJson();
+
+                if (string.IsNullOrEmpty(content)) return false;
+
+                File.WriteAllText(filePath, content);
+            }
+            catch (Exception exception)
+            {
+                Trace.WriteLine($"{this}.ToFile({filePath}) ERROR:{exception}");
+                return false;
+            }
+            return true;
+        }
+
     }
 }

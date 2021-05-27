@@ -17,7 +17,7 @@ namespace AppBlocks.Models.Tests
             return config;
         }
 
-        public static string TestUserId = Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.TestUserId", "test@test.com");
-        public static string TestUserPwd = Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.TestUserPwd", "");
+        public static string TestUserId = Config.Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.TestUserId", "test@test.com");
+        public static string TestUserPwd = Config.Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.TestUserPwd", "");
     }
 }

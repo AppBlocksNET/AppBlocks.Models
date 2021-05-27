@@ -39,9 +39,9 @@ namespace AppBlocks.Models
         [JsonPropertyName("zipcode")]
         public string Zipcode { get; set; }
 
-        [DataMember(Name="phone")]
-        [JsonPropertyName("phone")]
-        public string Phone { get; set; }
+        //[DataMember(Name="phone")]
+        //[JsonPropertyName("phone")]
+        //public string Phone { get; set; }
 
         //[DataMember(Name="shirtsize")]
         //[JsonPropertyName("shirtsize")]
@@ -54,9 +54,9 @@ namespace AppBlocks.Models
         //[JsonPropertyName("typeid")]
         //public string TypeId { get; set; }
 
-        [DataMember(Name="hidecontactinfo")]
-        [JsonPropertyName("hidecontactinfo")]
-        public string HideContactInfo { get; set; }
+        //[DataMember(Name="hidecontactinfo")]
+        //[JsonPropertyName("hidecontactinfo")]
+        //public string HideContactInfo { get; set; }
 
         //[DataMember(Name="jeepimage")]
         //public string JeepImage { get; set; }
@@ -91,16 +91,16 @@ namespace AppBlocks.Models
 
             UserId = member.UserId;
             Email = member.Email;
+            //Phone = member.Phone;
             //Password = user.Password;
             Username = member.Username;
             Image = member.Image;
             if (string.IsNullOrEmpty(Image)) Image = "";// App.DefaultProfileImageUrl;
             //ShirtSize = member.ShirtSize;
             FirstName = member.FirstName;
-            LastName = member.LastName;
-            Phone = member.Phone;
+            LastName = member.LastName;            
             Zipcode = member.Zipcode;
-            HideContactInfo = member.HideContactInfo;
+            //HideContactInfo = member.HideContactInfo;
             //JeepModel = member.JeepModel;
             //JeepName = member.JeepName;
             //JeepYear = member.JeepYear;

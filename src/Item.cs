@@ -202,15 +202,15 @@ namespace AppBlocks.Models
         /// <param name="json"></param>
         public static T FromJson<T>(string json) where T : Item
         {
-            var typeName = typeof(T).Name;
+            var typeName = typeof(T).FullName;
             Trace.WriteLine($"{typeof(Item).Name}.FromJson<{typeName}>({json}) started:{DateTime.Now.ToShortTimeString()}");
 
-            var jsonFile = FromFile(json, typeName);
+            var jsonFile = Common.FromFile(json, typeName);
             if (!string.IsNullOrEmpty(jsonFile)) json = jsonFile;
 
             if (typeName == "AppBlocks.Models.User")
             {
-                //json = "";
+                json = Models.Settings.AppBlocksBlocksServiceUrl + "/account/authenticate";// Models.Settings.GroupId
             }
 
             if (json.ToLower().StartsWith("http") || json == Models.Settings.GroupId || string.IsNullOrEmpty(json))
@@ -243,29 +243,6 @@ namespace AppBlocks.Models
         /// </summary>
         /// <param name="items"></param>
         public void FromEnumerable(IEnumerable<Item> items) => FromItem(FromList<Item>(items.ToList()));
-
-        /// <summary>
-        /// FromFile
-        /// </summary>
-        public static string FromFile(string filePathOrId, string typeName = "Item")
-        {
-            Trace.WriteLine($"{typeof(Item).Name}.Read({filePathOrId}) started:{DateTime.Now.ToShortTimeString()}");
-
-            if (File.Exists(filePathOrId))
-            {
-                Trace.WriteLine($"{typeof(Item).Name}.Read({filePathOrId}) found:{filePathOrId}");
-                return System.IO.File.ReadAllText(filePathOrId);
-            }
-
-            var filePath = GetFilepath(filePathOrId, typeName);
-            if (File.Exists(filePath))
-            {
-                Trace.WriteLine($"{typeof(Item).Name}.Read({filePathOrId}) found:{filePath}");
-                return File.ReadAllText(filePath);
-            }
-            Trace.WriteLine($"{typeof(Item).Name}.Read({filePathOrId}):no file found");
-            return null;
-        }
 
         /// <summary>
         /// FromItem
@@ -401,18 +378,7 @@ namespace AppBlocks.Models
         /// GetFilename
         /// </summary>
         /// <returns></returns>
-        public virtual string GetFilename(string typeName = "Item") => GetFilepath(Id, typeName);
-
-        /// <summary>
-        /// GetFilepath
-        /// </summary>
-        /// <param name="filePathOrId"></param>
-        /// <returns></returns>
-        public static string GetFilepath(string filePathOrId, string typeName = "Item")
-        {
-            if (File.Exists(filePathOrId)) return filePathOrId;
-            return $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\app_data\\blocks\\{typeName}.{filePathOrId}.json";
-        }
+        public virtual string GetFilename(string typeName = "Item") => Common.GetFilepath(Id, typeName);
 
         /// <summary>
         /// SetChildren

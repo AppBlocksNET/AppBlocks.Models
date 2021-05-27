@@ -10,7 +10,7 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void GroupIdTest()
         {
-            var groupId = Factory.GetConfig().AppSettings()["AppBlocks:AppBlocks.GroupId"];
+            var groupId = Config.Factory.GetConfig().AppSettings()["AppBlocks:AppBlocks.GroupId"];
             Console.WriteLine($"AppBlocks:AppBlocks.GroupId:{groupId}");
             Assert.IsTrue(!string.IsNullOrEmpty(groupId), $"No setting:{groupId}");
         }

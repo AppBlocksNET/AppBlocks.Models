@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,10 +22,22 @@ namespace AppBlocks.Models
         //[JsonIgnore]
         //public string Json => JsonConvert.SerializeObject(this);
 
-        public User()
-        {
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
+        public User() { }
+
+        public User(
+            SignInManager<IdentityUser> signInManager,
+            UserManager<IdentityUser> userManager,
+            RoleManager<IdentityRole> roleManager)
+        {
+            _signInManager = signInManager;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
+
         public User(string json)
         {
             if (string.IsNullOrEmpty(json)) return;
@@ -61,7 +74,35 @@ namespace AppBlocks.Models
         public static bool Authenticate(string username, string password)
         {
             //if (string.IsNullOrEmpty(password)) password = $"{username}Blocks!";
-            var userRequest = new User() { UserName = username };
+
+            //if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password)) return false;
+            //var user = _userManager.FindByNameAsync(username);
+            //if (user == null) return new StatusCodeResult(401);
+            //if (!(await _signInManager.CheckPasswordSignInAsync(user, password, false)).Succeeded) return new StatusCodeResult(401);
+            //return Ok(user);
+
+            using (var serviceScope = ServiceActivator.GetScope())
+            {
+                if (serviceScope != null)
+                {
+                    var signInService = serviceScope.ServiceProvider.GetService(typeof(SignInManager<IdentityUser>));
+                    if (signInService != null)
+                    {
+                        SignInManager<IdentityUser> signInManager = (SignInManager<IdentityUser>)signInService;
+                        return signInManager.CheckPasswordSignInAsync(new IdentityUser(username), password, false).Result.Succeeded;
+                    }
+                    //ILoggerFactory loggerFactory = serviceScope.ServiceProvider.GetService<ILoggerFactory>();
+                    //IOptionsMonitor<JwtConfiguration> option = (IOptionsMonitor<JwtConfiguration>)serviceScope.ServiceProvider.GetService(typeof(IOptionsMonitor<JwtConfiguration>));
+
+                    /*
+                        use you services
+                    */
+                }
+            }
+
+
+
+            var userRequest = new User();// { UserName = username };
             var results = FromJson<User>(userRequest.ToJson());
 
             if (results != null)
@@ -169,7 +210,7 @@ namespace AppBlocks.Models
 
             if (typeName == "AppBlocks.Models.User")
             {
-                json = Models.Settings.AppBlocksBlocksServiceUrl + "/account/authenticate";// Models.Settings.GroupId
+                json = Models.Settings.AppBlocksServiceUrl + "/account/authenticate";// Models.Settings.GroupId
             }
 
             if (json.ToLower().StartsWith("http") || json == Models.Settings.GroupId || string.IsNullOrEmpty(json))
@@ -244,7 +285,6 @@ namespace AppBlocks.Models
 
             return FromJson<T>(content);
         }
-
 
         /// <summary>
         /// ToFile

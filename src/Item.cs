@@ -2,7 +2,6 @@
 using AppBlocks.Models.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;

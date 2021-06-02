@@ -1,5 +1,6 @@
 ﻿using AppBlocks.Config;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -16,8 +17,9 @@ namespace AppBlocks.Models.Tests
             var config = builder.Build();
             return config;
         }
-
+        
+        public static string TestUser = Config.Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.TestUser", "test@test.com");
+        public static string TestPassword = Config.Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.TestPassword", "");
         public static string TestUserId = Config.Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.TestUserId", "test@test.com");
-        public static string TestUserPwd = Config.Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.TestUserPwd", "");
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AppBlocks.Config;
+using AppBlocks.Models.Extensions;
 using System;
-using System.Collections.Immutable;
+using System.Collections.Generic;
 
 namespace AppBlocks.Models
 {
@@ -17,7 +18,7 @@ namespace AppBlocks.Models
         /// <summary>
         /// AppSettings
         /// </summary>
-        public static IImmutableDictionary<string, string> AppSettings = Factory.GetConfig().AppSettings();
+        public static Dictionary<string, string> AppSettings = Factory.GetConfig().AppSettings();
 
         /// <summary>
         /// Env
@@ -55,6 +56,11 @@ namespace AppBlocks.Models
         /// GroupTypeId
         /// </summary>
         public static string GroupTypeId = Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.GroupTypeId", "78618B97-39FF-EA11-A38B-BC9A78563412");
+
+        /// <summary>
+        /// AppBlocksServiceBUrl
+        /// </summary>
+        public static string AppBlocksServiceUrl = Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.ServiceUrl", "https://appblocks.net/api/");
 
         /// <summary>
         /// AppBlocksBlocksServiceBUrl

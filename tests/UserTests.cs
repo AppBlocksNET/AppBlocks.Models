@@ -13,8 +13,8 @@ namespace AppBlocks.Models.Tests
         public void AuthenticateTest()
         {
             //AppConfig.GetConfig()
-            var results = User.Authenticate(AppConfig.TestUserId, AppConfig.TestUserPwd);
-            Console.WriteLine($"AppConfig.TestUserId:{AppConfig.TestUserId}");
+            var results = User.Authenticate(AppConfig.TestUser, AppConfig.TestPassword);
+            Console.WriteLine($"AppConfig.TestUser:{AppConfig.TestUser}");
             Assert.IsTrue(results);
         }
 

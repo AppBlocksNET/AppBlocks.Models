@@ -11,16 +11,16 @@ namespace AppBlocks.Models.Tests
         public DbContext(DbContextOptions<DbContext> options) : base(options) { }
 
         public DbSet<Item> Items { get; set; }
-        public DbSet<Member> Members { get; set; }
+        //public DbSet<Member> Members { get; set; }
         public DbSet<Setting> Settings { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                IConfigurationRoot configuration = Config.Factory.GetConfig();
+                var connectionString = Config.Factory.GetConnectionString(typeof(DbContext).Namespace);
                 optionsBuilder.UseSqlServer(
-                    configuration.GetConnectionString(typeof(DbContext).Namespace)
+                    connectionString
                     //$"Server=.\\;Database={typeof(AppBlocksDbContext).Namespace};Trusted_Connection=True;MultipleActiveResultSets=true;Application Name=AppBlocks.Web.Dev"
                     , builder =>
                  builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null));

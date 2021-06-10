@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace AppBlocks.Models
+namespace AppBlocks.Models.Services
 {
     /// <summary>
     /// Add static service resolver to use when dependencies injection is not available

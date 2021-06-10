@@ -2,6 +2,8 @@
 using AppBlocks.Models.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Windows.Input;
 
 namespace AppBlocks.Models
 {
@@ -66,5 +68,17 @@ namespace AppBlocks.Models
         /// AppBlocksBlocksServiceBUrl
         /// </summary>
         public static string AppBlocksBlocksServiceUrl = Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.BlocksServiceUrl", "https://appblocks.net/api/blocks/index/");
+
+        public static Dictionary<string, ICommand> Commands = new Dictionary<string, ICommand>();
+
+        private static Assembly entryAssembly;
+        public static Assembly EntryAssembly => entryAssembly ?? (entryAssembly = Assembly.GetEntryAssembly());
+
+        private static string assemblyName;
+        private static ICommand loadAppsCommand;
+
+        public static string AssemblyName => assemblyName ?? (assemblyName = EntryAssembly.GetName().Name);
+
+        public static readonly string CurrentUserKey = $"{AssemblyName}.CurrentUser";
     }
 }

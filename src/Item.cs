@@ -1,11 +1,12 @@
 ﻿using AppBlocks.Extensions;
 using AppBlocks.Models.Extensions;
+using AppBlocks.Models.Services;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -21,6 +22,7 @@ namespace AppBlocks.Models
     /// </summary>
     public partial class Item : INotifyPropertyChanged //Item // INotifyPropertyChanged // : Item
     {
+        private readonly ILogger<Item> _logger;
         public event PropertyChangedEventHandler PropertyChanged;
 
         #region Constructors
@@ -28,11 +30,23 @@ namespace AppBlocks.Models
         {
             Children = new List<Item>();
             if (Settings == null) Settings = new List<Setting>();
+            using (var serviceScope = ServiceActivator.GetScope())
+            {
+                if (serviceScope != null)
+                {
+                    _logger = (ILogger<Item>)serviceScope.ServiceProvider.GetService(typeof(ILogger<Item>));
+                }
+            }
+        }
+
+        public Item(ILogger<Item> logger = null)
+        {
+            _logger = logger;
         }
 
         public Item(Uri sourceUri) => FromItem(FromUri<Item>(sourceUri));
 
-        public Item(string json) => FromItem(FromJson<Item>(json));
+        public Item(string json) => FromJson<Item>(json);
 
         public Item(List<Item> items) => FromItem(FromList<Item>(items));
         ////(this IConfigurationRoot config) => config.GetSection("AppBlocks").AsEnumerable().ToImmutableDictionary(x => x.Key, x => x.Value);
@@ -199,17 +213,17 @@ namespace AppBlocks.Models
         /// FromJson
         /// </summary>
         /// <param name="json"></param>
-        public static T FromJson<T>(string json) where T : Item
+        public T FromJson<T>(string json) where T : Item
         {
             var typeName = typeof(T).FullName;
-            Trace.WriteLine($"{typeof(Item).Name}.FromJson<{typeName}>({json}) started:{DateTime.Now.ToShortTimeString()}");
+            _logger?.LogInformation($"{typeof(Item).Name}.FromJson<{typeName}>({json}) started:{DateTime.Now.ToShortTimeString()}");
 
             var jsonFile = Common.FromFile(json, typeName);
             if (!string.IsNullOrEmpty(jsonFile)) json = jsonFile;
 
             if (typeName == "AppBlocks.Models.User")
             {
-                json = Models.Settings.AppBlocksBlocksServiceUrl + "/account/authenticate";// Models.Settings.GroupId
+                json = Models.Settings.AppBlocksServiceUrl + "/account/authenticate";// Models.Settings.GroupId
             }
 
             if (json.ToLower().StartsWith("http") || json == Models.Settings.GroupId || string.IsNullOrEmpty(json))
@@ -250,7 +264,7 @@ namespace AppBlocks.Models
         public void FromItem(Item item)
         {
             if (item == null) return;
-            Trace.WriteLine($"{typeof(Item).Name}.FromItem({item.Id}) started:{DateTime.Now.ToShortTimeString()}");
+            _logger?.LogInformation($"{typeof(Item).Name}.FromItem({item.Id}) started:{DateTime.Now.ToShortTimeString()}");
             Children = item.Children;
             Created = item.Created;
             CreatorId = item.CreatorId;
@@ -277,17 +291,17 @@ namespace AppBlocks.Models
         /// FromList
         /// </summary>
         /// <param name="items"></param>
-        public static T FromList<T>(List<Item> items) where T : Item => (items.SetChildren().SingleOrDefault(i => i.TypeId == Models.Settings.GroupTypeId) ?? items.SetChildren().FirstOrDefault()) as T;
+        public T FromList<T>(List<Item> items) where T : Item => (items.SetChildren().SingleOrDefault(i => i.TypeId == Models.Settings.GroupTypeId) ?? items.SetChildren().FirstOrDefault()) as T;
 
         /// <summary>
         /// FromService
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static T FromService<T>(string id = null) where T : Item => FromJson<T>(!string.IsNullOrEmpty(id) ? id : Models.Settings.GroupId);
+        public T FromService<T>(string id = null) where T : Item => FromJson<T>(!string.IsNullOrEmpty(id) ? id : Models.Settings.GroupId);
 
         //if (string.IsNullOrEmpty(id)) id = Settings.GroupId;
-        //Trace.WriteLine($"{typeof(T).Name}.FromService({id}) started:{DateTime.Now.ToShortTimeString()}");
+        //_logger?.LogInformation($"{typeof(T).Name}.FromService({id}) started:{DateTime.Now.ToShortTimeString()}");
         //var item = FromJson<T>(id);
         //if (item == null)
         //{
@@ -308,7 +322,7 @@ namespace AppBlocks.Models
         ///// <returns></returns>
         //public static T FromSettings<T>(ICollection<Item> settings) where T : Item
         //{
-        //    Trace.WriteLine($"{typeof(T).Name}.FromSettings({settings}) started:{DateTime.Now.ToShortTimeString()}");
+        //    _logger?.LogInformation($"{typeof(T).Name}.FromSettings({settings}) started:{DateTime.Now.ToShortTimeString()}");
         //    T results = default;
         //    if (settings.Count() > 0)
         //    {
@@ -317,12 +331,12 @@ namespace AppBlocks.Models
         //        {
         //            if (settings?.Count() > 1)
         //            {
-        //                Trace.WriteLine($"FromSettings: settings found - {settings?.Count()}");
+        //                _logger?.LogInformation($"FromSettings: settings found - {settings?.Count()}");
         //            }
         //            return results;
         //        }
         //    }
-        //    Trace.WriteLine($"FromSettings: {results?.Id}");
+        //    _logger?.LogInformation($"FromSettings: {results?.Id}");
         //    return results;
         //}
 
@@ -331,23 +345,23 @@ namespace AppBlocks.Models
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public static T FromUri<T>(Uri uri = null) where T : Item
+        public T FromUri<T>(Uri uri = null) where T : Item
         {
-            Trace.WriteLine($"{typeof(Item).Name}.FromUri({uri}) started:{DateTime.Now.ToShortTimeString()}");
+            if (uri == null) uri = new Uri(typeof(T).FullName != "AppBlocks.Models.User" ? Models.Settings.AppBlocksBlocksServiceUrl + Models.Settings.GroupId : Models.Settings.AppBlocksServiceUrl + "/account/authenticate");
+            _logger?.LogInformation($"{typeof(Item).Name}.FromUri({uri}) started:{DateTime.Now.ToShortTimeString()}");
             var content = string.Empty;
             try
             {
-                if (uri == null) uri = new Uri(Models.Settings.AppBlocksBlocksServiceUrl + Models.Settings.GroupId);
                 var request = (HttpWebRequest)WebRequest.Create(uri);
                 request.ServerCertificateValidationCallback = (message, cert, chain, errors) => { return true; };
                 // response.GetResponseStream();
                 using (var response = (HttpWebResponse)request.GetResponse())
                 {
-                    Trace.WriteLine($"HttpStatusCode:{response.StatusCode}");
+                    _logger?.LogInformation($"HttpStatusCode:{response.StatusCode}");
                     var responseValue = string.Empty;
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        var message = string.Format("{App.AppName ERROR: }Request failed. Received HTTP {0}", response.StatusCode);
+                        var message = $"{typeof(Item).FullName} ERROR: Request failedd. Received HTTP {response.StatusCode}";
                         throw new ApplicationException(message);
                     }
 
@@ -366,9 +380,9 @@ namespace AppBlocks.Models
             }
             catch (Exception exception)
             {
-                Trace.WriteLine($"{nameof(Item)}.FromUri({uri}) ERROR:{exception.Message} {exception}");
+                _logger?.LogInformation($"{nameof(Item)}.FromUri({uri}) ERROR:{exception.Message} {exception}");
             }
-            Trace.WriteLine($"content:{content}");
+            _logger?.LogInformation($"content:{content}");
 
             return FromJson<T>(content);
         }
@@ -407,7 +421,7 @@ namespace AppBlocks.Models
         {
             try
             {
-                Trace.WriteLine($"{typeof(T).Name}.ToFile({filePath}): {DateTime.Now.ToShortTimeString()} started");
+                _logger?.LogInformation($"{typeof(T).Name}.ToFile({filePath}): {DateTime.Now.ToShortTimeString()} started");
 
                 if (string.IsNullOrEmpty(filePath)) filePath = GetFilename(typeof(T).Name);
 
@@ -422,7 +436,7 @@ namespace AppBlocks.Models
             }
             catch (Exception exception)
             {
-                Trace.WriteLine($"{this}.ToFile({filePath}) ERROR:{exception}");
+                _logger?.LogInformation($"{this}.ToFile({filePath}) ERROR:{exception}");
                 return false;
             }
             return true;

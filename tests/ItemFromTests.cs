@@ -34,7 +34,7 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void FromJsonFileDataTest()
         {
-            var item = Item.FromJson<Item>(".\\data-tests\\ItemChildrenDeserializationTest.json");
+            var item = new Item(".\\data-tests\\ItemChildrenDeserializationTest.json");
             Assert.IsTrue(item != null);
             Assert.IsTrue(item.Children.Count() > 2);
             item.ToFile<Item>();
@@ -43,7 +43,7 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void FromJsonFileTest()
         {
-            var item = new Item("test");
+            var item = new Item().FromJson<Item>("test");
             Assert.IsTrue(item != null);
             Assert.IsTrue(item.Title == "test");
         }
@@ -51,7 +51,7 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void FromJsonFileChildrenTest()
         {
-            var item = Item.FromJson<Item>(".\\data-tests\\ItemChildrenDeserializationTest.json");
+            var item = new Item(".\\data-tests\\ItemChildrenDeserializationTest.json");
             Assert.IsTrue(item != null);
             Assert.IsTrue(item.Children.Count() > 2);
         }
@@ -59,7 +59,7 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void FromJsonFileBadTest()
         {
-            var item = Item.FromJson<Item>($"{AssemblyName}.CurrentUser");
+            var item = new Item($"{AssemblyName}.CurrentUser");
             Assert.IsTrue(item == null);
             //Assert.IsTrue(item.Children.Count() > 2);
         }
@@ -67,7 +67,7 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void FromServiceDefaultGroupTest()
         {
-            var item = Item.FromService<Item>();
+            var item = new Item().FromService<Item>();
             Assert.IsTrue(item != null);
             Assert.IsTrue(item.Children.Count() > 2);
         }
@@ -75,7 +75,7 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void FromServiceTest()
         {
-            var item = Item.FromService<Item>(Models.Settings.GroupId);
+            var item = new Item(Settings.GroupId); // Item.FromService<Item>(Models.Settings.GroupId);
             Assert.IsTrue(item != null);
             Assert.IsTrue(item.Children.Count() > 2);
         }
@@ -85,7 +85,7 @@ namespace AppBlocks.Models.Tests
         {
             if (System.IO.File.Exists(Common.GetFilepath(Models.Settings.GroupId))) System.IO.File.Delete(Common.GetFilepath(Models.Settings.GroupId));
             Assert.IsFalse(System.IO.File.Exists(Common.GetFilepath(Models.Settings.GroupId)));
-            var item = Item.FromService<Item>();
+            var item = new Item().FromService<Item>();
             Assert.IsTrue(item != null);
             Assert.IsTrue(item.Children.Count() > 2);
         }

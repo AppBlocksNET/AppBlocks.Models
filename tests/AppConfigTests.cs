@@ -18,8 +18,8 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void GroupIdSettingsTest()
         {
-            Console.WriteLine($"Models.Settings.GroupId:{Models.Settings.GroupId}");
-            Assert.IsTrue(Models.Settings.GroupId == "AppBlocks.Core.Test.App", Models.Settings.GroupId);
+            Console.WriteLine($"Models.Settings.GroupId:{Settings.GroupId}");
+            Assert.IsTrue(Settings.GroupId == "AppBlocks.Core.Test.App", Settings.GroupId);
         }
     }
 }

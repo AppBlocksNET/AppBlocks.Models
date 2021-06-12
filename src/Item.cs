@@ -14,6 +14,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace AppBlocks.Models
 {
@@ -29,7 +30,6 @@ namespace AppBlocks.Models
         public Item()
         {
             Children = new List<Item>();
-            if (Settings == null) Settings = new List<Setting>();
             using (var serviceScope = ServiceActivator.GetScope())
             {
                 if (serviceScope != null)
@@ -52,10 +52,7 @@ namespace AppBlocks.Models
         ////(this IConfigurationRoot config) => config.GetSection("AppBlocks").AsEnumerable().ToImmutableDictionary(x => x.Key, x => x.Value);
         #endregion
 
-        public T GetSetting<T>(string key, string defaultValue = null) => (T)Convert.ChangeType(Settings.GetValueOrDefault(key, defaultValue) ?? defaultValue, typeof(T));
-
-        [JsonPropertyName("settings")]
-        public ICollection<Setting> Settings { get; set; }
+        //public T GetSetting<T>(string key, string defaultValue = null) => (T)Convert.ChangeType(Settings.GetValueOrDefault(key, defaultValue) ?? defaultValue, typeof(T));
 
         [JsonPropertyName("status")]
         [IgnoreDataMember]
@@ -251,6 +248,11 @@ namespace AppBlocks.Models
             }
         }
 
+        public async Task<T> FromJsonAsync<T>(string json) where T : Item
+        {
+            return FromJson<T>(json);
+        }
+
         /// <summary>
         /// FromEnumerable
         /// </summary>
@@ -299,6 +301,14 @@ namespace AppBlocks.Models
         /// <param name="id"></param>
         /// <returns></returns>
         public T FromService<T>(string id = null) where T : Item => FromJson<T>(!string.IsNullOrEmpty(id) ? id : Models.Settings.GroupId);
+
+        /// <summary>
+        /// FromServiceAsync
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<T> FromServiceAsync<T>(string id = null) where T : Item => await FromJsonAsync<T>(!string.IsNullOrEmpty(id) ? id : Settings.GroupId);
 
         //if (string.IsNullOrEmpty(id)) id = Settings.GroupId;
         //_logger?.LogInformation($"{typeof(T).Name}.FromService({id}) started:{DateTime.Now.ToShortTimeString()}");

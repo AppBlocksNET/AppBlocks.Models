@@ -108,41 +108,41 @@ namespace AppBlocks.Models.Tests
             Assert.IsTrue(System.IO.File.Exists(testItem.GetFilename()));
         }
 
-        [TestMethod]
-        public void ItemSettingsTest()
-        {
-            var testItem = new Item("test");
-            Assert.IsNotNull(testItem);
-            var setting = testItem.GetSetting<string>("Test", "1");
-            Assert.IsTrue(setting == "1");
-        }
+        //[TestMethod]
+        //public void ItemSettingsTest()
+        //{
+        //    var testItem = new Item("test");
+        //    Assert.IsNotNull(testItem);
+        //    var setting = testItem.GetSetting<string>("Test", "1");
+        //    Assert.IsTrue(setting == "1");
+        //}
 
-        [TestMethod]
-        public void ItemSettingsText()
-        {
-            var testItem = new Item("test");
-            Assert.IsNotNull(testItem);
-            var setting = testItem.GetSetting<string>("color", "blue");
-            Assert.IsTrue(setting == "blue");
-        }
+        //[TestMethod]
+        //public void ItemSettingsText()
+        //{
+        //    var testItem = new Item("test");
+        //    Assert.IsNotNull(testItem);
+        //    var setting = testItem.GetSetting<string>("color", "blue");
+        //    Assert.IsTrue(setting == "blue");
+        //}
 
-        [TestMethod]
-        public void ItemSettingsBoolTrue()
-        {
-            var testItem = new Item("test");
-            Assert.IsNotNull(testItem);
-            var setting = testItem.GetSetting<bool>("favorite", "true");
-            Assert.IsTrue(setting);
-        }
+        //[TestMethod]
+        //public void ItemSettingsBoolTrue()
+        //{
+        //    var testItem = new Item("test");
+        //    Assert.IsNotNull(testItem);
+        //    var setting = testItem.GetSetting<bool>("favorite", "true");
+        //    Assert.IsTrue(setting);
+        //}
 
-        [TestMethod]
-        public void ItemSettingsBoolFalse()
-        {
-            var testItem = new Item("test");
-            Assert.IsNotNull(testItem);
-            var setting = testItem.GetSetting<bool>("favorite", "false");
-            Assert.IsTrue(!setting);
-        }
+        //[TestMethod]
+        //public void ItemSettingsBoolFalse()
+        //{
+        //    var testItem = new Item("test");
+        //    Assert.IsNotNull(testItem);
+        //    var setting = testItem.GetSetting<bool>("favorite", "false");
+        //    Assert.IsTrue(!setting);
+        //}
 
         [TestMethod]
         public void ToFromFileTest()

@@ -9,14 +9,14 @@
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>The BASE of ALL THE THINGS</Description>
-    <AssemblyVersion>0.0.11.0</AssemblyVersion>
-    <FileVersion>0.0.11.0</FileVersion>
-    <Version>0.0.11</Version>
+    <AssemblyVersion>0.0.12.0</AssemblyVersion>
+    <FileVersion>0.0.12.0</FileVersion>
+    <Version>0.0.12</Version>
     <Company>AppBlocks, David Walker, Radical Dave</Company>
     <Authors>David Walker, Radical Dave</Authors>
     <Copyright>AppBlocks, David Walker, Radical Dave</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>Item cleanup</PackageReleaseNotes>
+    <PackageReleaseNotes>removed xamarin refereneces</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -38,8 +38,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
-    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012" />
-    <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
   </ItemGroup>
 
   <ItemGroup>

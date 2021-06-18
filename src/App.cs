@@ -8,8 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Xamarin.Essentials;
-using Xamarin.Forms;
 
 namespace AppBlocks.Models
 {
@@ -86,11 +84,11 @@ namespace AppBlocks.Models
 
         public delegate void CurrentUserChanged(object sender, CurrentUserChangedEventArgs e);
 
-        public static string Name => AppInfo.Name;
+        public static string Name => Assembly.GetCallingAssembly().FullName;
 
-        public static string Version => AppInfo.VersionString;
+        public static string Version => Assembly.GetCallingAssembly().GetName().Version.ToString();
 
-        public static INavigation Navigation => Application.Current?.MainPage?.Navigation ?? Application.Current?.NavigationProxy;
+        //public static INavigation Navigation => Application.Current?.MainPage?.Navigation ?? Application.Current?.NavigationProxy;
 
         //public static void OnUnhandledException(object sender, ExceptionEventArgs e)
         //{
@@ -152,10 +150,10 @@ namespace AppBlocks.Models
 
             //Core.Init.Analytics.Init();
 
-            if (Xamarin.Forms.Device.RuntimePlatform == Xamarin.Forms.Device.UWP)
-            {
-                //InitNavigation();
-            }
+            //if (Xamarin.Forms.Device.RuntimePlatform == Xamarin.Forms.Device.UWP)
+            //{
+            //    //InitNavigation();
+            //}
 
             //SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
             //SystemNavigationManager.GetForCurrentView().BackRequested += (s, a) =>
@@ -387,7 +385,7 @@ namespace AppBlocks.Models
             {
                 //if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.UserName}{currentUser.PasswordHash}")) return currentUser;
                 if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.Id}")) return currentUser;
-                currentUser = new Item(Preferences.Get(Settings.CurrentUserKey, null));
+                //currentUser = new Item(Preferences.Get(Settings.CurrentUserKey, null));
 
                 if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.Id}")) return currentUser;
 
@@ -399,12 +397,12 @@ namespace AppBlocks.Models
 
                 if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.Id}")) return currentUser;
 
-                if (!Application.Current.Properties.ContainsKey(Settings.CurrentUserKey) || Application.Current?.Properties?[Settings.CurrentUserKey] == null) return null;
-                var cached = Application.Current?.Properties?[Settings.CurrentUserKey]?.ToString();
-                if (cached != null)
-                {
-                    currentUser = new Item(cached);
-                }
+                //if (!Application.Current.Properties.ContainsKey(Settings.CurrentUserKey) || Application.Current?.Properties?[Settings.CurrentUserKey] == null) return null;
+                //var cached = Application.Current?.Properties?[Settings.CurrentUserKey]?.ToString();
+                //if (cached != null)
+                //{
+                //    currentUser = new Item(cached);
+                //}
                 return currentUser;
             }
             set
@@ -412,22 +410,21 @@ namespace AppBlocks.Models
                 currentUser = value;
                 if (currentUser == null)
                 {
-                    Preferences.Remove(Settings.CurrentUserKey);
-                    Application.Current.Properties.Remove(Settings.CurrentUserKey);
+                    //Preferences.Remove(Settings.CurrentUserKey);
+                    //Application.Current.Properties.Remove(Settings.CurrentUserKey);
                 }
                 else
                 {
                     currentUser.ToFile<Item>();
                     var userJson = currentUser.ToJson();
-                    Preferences.Set(Settings.CurrentUserKey, userJson);
-                    Preferences.Set($"{Settings.CurrentUserKey}-UserName", currentUser.Id);
+                    //Preferences.Set(Settings.CurrentUserKey, userJson);
+                    //Preferences.Set($"{Settings.CurrentUserKey}-UserName", currentUser.Id);
 
-                    Application.Current.Properties[Settings.CurrentUserKey] = userJson;
-                    Application.Current.Properties[$"{Settings.CurrentUserKey}-UserName"] = currentUser.Id;
+                    //Application.Current.Properties[Settings.CurrentUserKey] = userJson;
+                    //Application.Current.Properties[$"{Settings.CurrentUserKey}-UserName"] = currentUser.Id;
                 }
 
-
-                Application.Current.SavePropertiesAsync();
+                //Application.Current.SavePropertiesAsync();
 
                 OnCurrentUserChanged?.Invoke(currentUser, new CurrentUserChangedEventArgs(currentUser.Id));
                 //SetProperty(ref currentUser, value);

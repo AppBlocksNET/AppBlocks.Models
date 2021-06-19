@@ -2,6 +2,6 @@
 {
     public class LoadAppsCommand : BaseCommand
     {
-        public override void Execute(object parameter) => Context.Group = new Item();//.FromService<Item>();
+        public override void Execute(object parameter) => Context.Group = Item.FromService<Item>();
     }
 }

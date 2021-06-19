@@ -12,6 +12,7 @@ using System.Windows.Input;
 
 namespace AppBlocks.Models
 {
+    [Serializable]
     public static class Context
     {
         public static Dictionary<string, string> AppSettings = Factory.GetConfig()?.AppSettings();
@@ -84,7 +85,7 @@ namespace AppBlocks.Models
 
                 OnCurrentUserChanged?.Invoke(currentUser, new CurrentUserChangedEventArgs(currentUser.Id));
                 //SetProperty(ref currentUser, value);
-                //Trace.WriteLine($"{AssemblyName}.CurrentUser.Set:{currentUser}");
+                Trace.WriteLine($"{AssemblyName}.CurrentUser.Set:{currentUser}");
             }
         }
 
@@ -112,8 +113,8 @@ namespace AppBlocks.Models
             }
         }
 
-        private static string id;
-        public static string Id => id ?? "5E11C4A9-D602-EB11-A38D-BC9A78563412";//(id = !AssemblyName.ToLower().EndsWith(".uwp") ? AssemblyName : AssemblyName.Substring(0, AssemblyName.Length - 4));
+        //private static string id;
+        //public static string Id => id ?? "5E11C4A9-D602-EB11-A38D-BC9A78563412";//(id = !AssemblyName.ToLower().EndsWith(".uwp") ? AssemblyName : AssemblyName.Substring(0, AssemblyName.Length - 4));
         //public static string Id
         //{
         //    get
@@ -189,7 +190,7 @@ namespace AppBlocks.Models
             //        new Item { Id = id }
             //    })).ToObservableCollection();
             //}
-            return default;
+            return null;
         }
 
         public static void Init()

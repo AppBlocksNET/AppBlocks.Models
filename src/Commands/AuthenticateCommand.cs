@@ -100,6 +100,7 @@ namespace AppBlocks.Models.Commands
             catch (Exception exception)
             {
                 //_logger?.LogInformation($"{nameof(Item)}.FromUri({uri}) ERROR:{exception.Message} {exception}");
+                Trace.WriteLine($"{nameof(Item)}.FromUri({uri}) ERROR:{exception.Message} {exception}");
                 return null;
             }
             //_logger?.LogInformation($"content:{content}");

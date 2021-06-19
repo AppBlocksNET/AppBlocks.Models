@@ -13,14 +13,14 @@ namespace AppBlocks.Models
     public class Settings
     {
         /// <summary>
-        /// ApiId
-        /// </summary>
-        public static string ApiId = Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.ApiId", GroupId);
-
-        /// <summary>
         /// AppSettings
         /// </summary>
-        public static Dictionary<string, string> AppSettings = Factory.GetConfig().AppSettings();
+        public static Dictionary<string, string> AppSettings = Factory.GetConfig()?.AppSettings();
+
+        /// <summary>
+        /// ApiId
+        /// </summary>
+        public static string ApiId = AppSettings?.GetValueOrDefault("AppBlocks:AppBlocks.ApiId", GroupId);
 
         /// <summary>
         /// Env
@@ -30,7 +30,9 @@ namespace AppBlocks.Models
         /// <summary>
         /// GroupId //5E11C4A9-D602-EB11-A38D-BC9A78563412
         /// </summary>
-        public static string GroupId = Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.GroupId", "");
+        public static string GroupId = AppSettings?.GetValueOrDefault("AppBlocks:AppBlocks.GroupId", "");
+
+
         //public static string GroupId = System.Configuration.ConfigurationManager.AppSettings.Get("AppBlocks:GroupId") ?? "5E11C4A9-D602-EB11-A38D-BC9A78563412";
         //(id = !AssemblyName.ToLower().EndsWith(".uwp") ? AssemblyName : AssemblyName.Substring(0, AssemblyName.Length - 4));
         //public static string Id
@@ -57,17 +59,17 @@ namespace AppBlocks.Models
         /// <summary>
         /// GroupTypeId
         /// </summary>
-        public static string GroupTypeId = Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.GroupTypeId", "78618B97-39FF-EA11-A38B-BC9A78563412");
+        public static string GroupTypeId = AppSettings.GetValueOrDefault("AppBlocks:AppBlocks.GroupTypeId", "78618B97-39FF-EA11-A38B-BC9A78563412");
 
         /// <summary>
         /// AppBlocksServiceBUrl
         /// </summary>
-        public static string AppBlocksServiceUrl = Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.ServiceUrl", "https://appblocks.net/api/");
+        public static string AppBlocksServiceUrl = AppSettings?.GetValueOrDefault("AppBlocks:AppBlocks.ServiceUrl", "https://appblocks.net/api/");
 
         /// <summary>
         /// AppBlocksBlocksServiceBUrl
         /// </summary>
-        public static string AppBlocksBlocksServiceUrl = Factory.GetConfig().AppSettings().GetValueOrDefault("AppBlocks:AppBlocks.BlocksServiceUrl", "https://appblocks.net/api/blocks/index/");
+        public static string AppBlocksBlocksServiceUrl = AppSettings?.GetValueOrDefault("AppBlocks:AppBlocks.BlocksServiceUrl", "https://appblocks.net/api/blocks/index/");
 
         public static Dictionary<string, ICommand> Commands = new Dictionary<string, ICommand>();
 

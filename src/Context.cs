@@ -11,7 +11,7 @@ using System.Windows.Input;
 
 namespace AppBlocks.Models
 {
-    public static class App
+    public static class Context
     {
         public static Dictionary<string, ICommand> Commands = new Dictionary<string, ICommand>();
 
@@ -177,7 +177,7 @@ namespace AppBlocks.Models
             //if (loadAppsCommand == null) loadAppsCommand = Services.DependencyService.Resolve<LoadAppsCommand>() ?? ViewModelLocator.Resolve<LoadAppsCommand>() ?? new LoadAppsCommand();
             if (loadAppsCommand == null) loadAppsCommand = Commands.ContainsKey("LoadAppsCommand") ? Commands["LoadAppsCommand"] : new LoadAppsCommand();
             //Commands.LoadAppsCommand.Execute(typeof(App));
-            loadAppsCommand.Execute(typeof(App));
+            loadAppsCommand.Execute(typeof(Context));
 
             //SetMainPage();
 

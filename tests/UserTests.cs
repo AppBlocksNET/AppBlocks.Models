@@ -17,7 +17,7 @@ namespace AppBlocks.Models.Tests
             new AuthenticateCommand().Execute($"{AppConfig.TestUser}:{AppConfig.TestPassword}");
             //var results = User.Authenticate(AppConfig.TestUser, AppConfig.TestPassword);
             Console.WriteLine($"AppConfig.TestUser:{AppConfig.TestUser}");
-            Assert.IsTrue(App.CurrentUser != null);
+            Assert.IsTrue(Context.CurrentUser != null);
         }
 
         [TestMethod]
@@ -25,7 +25,7 @@ namespace AppBlocks.Models.Tests
         {
             new AuthenticateCommand().Execute($"{AppConfig.TestUser}:{AppConfig.TestPassword}");
             //var results = User.Authenticate("bad", "user");
-            Assert.IsFalse(App.CurrentUser != null);
+            Assert.IsFalse(Context.CurrentUser != null);
         }
 
         [TestMethod]
@@ -34,7 +34,7 @@ namespace AppBlocks.Models.Tests
             //var results = new User(AppConfig.TestUserId);
             new AuthenticateCommand().Execute($"{AppConfig.TestUser}:{AppConfig.TestPassword}");
             Console.WriteLine($"Settings.TestUserId:{AppConfig.TestUserId}");
-            Assert.IsTrue(App.CurrentUser != null);
+            Assert.IsTrue(Context.CurrentUser != null);
         }
 
 

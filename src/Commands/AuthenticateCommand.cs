@@ -22,7 +22,7 @@ namespace AppBlocks.Models.Commands
             {
                 var detailsSplit = details.Split(':');
 
-                App.CurrentUser = Authenticate(detailsSplit[0], detailsSplit[1]);
+                Context.CurrentUser = Authenticate(detailsSplit[0], detailsSplit[1]);
             }
 
             return;

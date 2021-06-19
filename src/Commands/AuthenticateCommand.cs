@@ -61,7 +61,7 @@ namespace AppBlocks.Models.Commands
         {
             if (source == null || source.ToString().StartsWith("?"))
             {
-                source = Settings.AppBlocksServiceUrl + $"account/authenticate" + source?.ToString();
+                source = Context.AppBlocksServiceUrl + $"account/authenticate" + source?.ToString();
             }
 
             var uri = new Uri(source);

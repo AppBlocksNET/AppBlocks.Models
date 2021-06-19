@@ -1,4 +1,5 @@
-﻿using AppBlocks.Models.Commands;
+﻿using AppBlocks.Config;
+using AppBlocks.Models.Commands;
 using AppBlocks.Models.Extensions;
 using System;
 using System.Collections.Generic;
@@ -13,12 +14,84 @@ namespace AppBlocks.Models
 {
     public static class Context
     {
+        public static Dictionary<string, string> AppSettings = Factory.GetConfig()?.AppSettings();
+        public static string ApiId = AppSettings?.GetValueOrDefault("AppBlocks:AppBlocks.ApiId", GroupId);
+
+        public static string AppName { get; internal set; }
+        public static string Name => Assembly.GetCallingAssembly().FullName;
+        public static string Version => Assembly.GetCallingAssembly().GetName().Version.ToString();
+
+        public static string AppBlocksServiceUrl = AppSettings?.GetValueOrDefault("AppBlocks:AppBlocks.ServiceUrl", "https://appblocks.net/api/");
+        public static string AppBlocksBlocksServiceUrl = AppSettings?.GetValueOrDefault("AppBlocks:AppBlocks.BlocksServiceUrl", "https://appblocks.net/api/blocks/index/");
+
+        public static string GroupId = AppSettings?.GetValueOrDefault("AppBlocks:AppBlocks.GroupId", "");
+        public static Item Group { get; set; }
+        public static string GroupTypeId = AppSettings.GetValueOrDefault("AppBlocks:AppBlocks.GroupTypeId", "78618B97-39FF-EA11-A38B-BC9A78563412");
+
+        public static bool ForceLogin = true;
+
+        public static bool IsAuthenticated { get { return currentUser != null && !string.IsNullOrEmpty(currentUser.Id); } }
+
+        public static readonly string CurrentUserKey = $"{AppName}.CurrentUser";
+
+        private static Item currentUser;
+        public static Item CurrentUser
+        {
+            get
+            {
+                //if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.UserName}{currentUser.PasswordHash}")) return currentUser;
+                if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.Id}")) return currentUser;
+                //currentUser = new Item(Preferences.Get(Settings.CurrentUserKey, null));
+
+                if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.Id}")) return currentUser;
+
+                currentUser = new Item(CurrentUserKey);
+
+                if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.Id}")) return currentUser;
+
+                var userFile = new Item(currentUser.Id);
+
+                if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.Id}")) return currentUser;
+
+                //if (!Application.Current.Properties.ContainsKey(Settings.CurrentUserKey) || Application.Current?.Properties?[Settings.CurrentUserKey] == null) return null;
+                //var cached = Application.Current?.Properties?[Settings.CurrentUserKey]?.ToString();
+                //if (cached != null)
+                //{
+                //    currentUser = new Item(cached);
+                //}
+                return currentUser;
+            }
+            set
+            {
+                currentUser = value;
+                if (currentUser == null)
+                {
+                    //Preferences.Remove(Settings.CurrentUserKey);
+                    //Application.Current.Properties.Remove(Settings.CurrentUserKey);
+                }
+                else
+                {
+                    currentUser.ToFile<Item>();
+                    var userJson = currentUser.ToJson();
+                    //Preferences.Set(Settings.CurrentUserKey, userJson);
+                    //Preferences.Set($"{Settings.CurrentUserKey}-UserName", currentUser.Id);
+
+                    //Application.Current.Properties[Settings.CurrentUserKey] = userJson;
+                    //Application.Current.Properties[$"{Settings.CurrentUserKey}-UserName"] = currentUser.Id;
+                }
+
+                //Application.Current.SavePropertiesAsync();
+
+                OnCurrentUserChanged?.Invoke(currentUser, new CurrentUserChangedEventArgs(currentUser.Id));
+                //SetProperty(ref currentUser, value);
+                //Trace.WriteLine($"{AssemblyName}.CurrentUser.Set:{currentUser}");
+            }
+        }
+
         public static Dictionary<string, ICommand> Commands = new Dictionary<string, ICommand>();
 
         private static Assembly entryAssembly;
         public static Assembly EntryAssembly => entryAssembly ?? (entryAssembly = Assembly.GetEntryAssembly());
-
-        public static string AppName { get; internal set; }
 
         private static string assemblyName;
         private static ICommand loadAppsCommand;
@@ -63,14 +136,12 @@ namespace AppBlocks.Models
         //    }
         //}
 
-        public static bool IsAuthenticated { get; set; }
         //public static INavigationService NavigationService { get; set; }
         //internal static ISerializerService SerializerService { get; set; }
         //private static ISettingsService SettingsService;
 
         //public static List<Library> Library { get; set; }
 
-        public static Item Group { get; set; }
         public static ObservableCollection<Item> BodyList => Group?.Children?.GetChild("Home")?.Children?.Where(i => !i.Name.StartsWith("_")).ToObservableCollection();
 
         public static ObservableCollection<Item> MainMenuList => (Group?.Children ?? new List<Item> { new Item { Name = "Home", Title = "Home" } })?.Where(i => !i.Name.StartsWith("_")).ToObservableCollection();
@@ -83,10 +154,6 @@ namespace AppBlocks.Models
         public static event CurrentUserChanged OnCurrentUserChanged;
 
         public delegate void CurrentUserChanged(object sender, CurrentUserChangedEventArgs e);
-
-        public static string Name => Assembly.GetCallingAssembly().FullName;
-
-        public static string Version => Assembly.GetCallingAssembly().GetName().Version.ToString();
 
         //public static INavigation Navigation => Application.Current?.MainPage?.Navigation ?? Application.Current?.NavigationProxy;
 
@@ -368,68 +435,39 @@ namespace AppBlocks.Models
         //    }
         //}
 
-        public static bool ForceLogin = true;
 
-        public static bool UserAuthenticated
-        {
-            get
-            {
-                return currentUser != null && !string.IsNullOrEmpty(currentUser.Id);
-            }
-        }
+        //public static string GroupId = System.Configuration.ConfigurationManager.AppSettings.Get("AppBlocks:GroupId") ?? "5E11C4A9-D602-EB11-A38D-BC9A78563412";
+        //(id = !AssemblyName.ToLower().EndsWith(".uwp") ? AssemblyName : AssemblyName.Substring(0, AssemblyName.Length - 4));
+        //public static string Id
+        //{
+        //    get
+        //    {
+        //        if (!string.IsNullOrEmpty(id)) return id;
+        //        //var assembly = typeof(LoginViewModel).Assembly;
+        //        //var attributes = assembly.GetCustomAttributes(typeof(GuidAttribute), true);
+        //        //var attribute = (GuidAttribute)attributes?[0];
+        //        //var id  = attribute.Value;
+        //        //return id;
+        //        //return Assembly.GetExecutingAssembly().FullName;
 
-        private static Item currentUser;
-        public static Item CurrentUser
-        {
-            get
-            {
-                //if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.UserName}{currentUser.PasswordHash}")) return currentUser;
-                if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.Id}")) return currentUser;
-                //currentUser = new Item(Preferences.Get(Settings.CurrentUserKey, null));
+        //        //TODO: customattribute on the assembly with ProjectGuid?
+        //        //var id = Assembly.GetEntryAssembly().GetName().Name;
+        //        //var id = Name;
+        //        id = AssemblyName;
+        //        if (id.ToLower().EndsWith(".uwp")) id = id.Substring(0, id.Length - 4);
+        //        //Trace.WriteLine($"********** {Name}-REFLECTION - to get id:{Id}");
+        //        return id;
+        //    }
+        //}
 
-                if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.Id}")) return currentUser;
 
-                currentUser = new Item(Settings.CurrentUserKey);
+        //private static Assembly entryAssembly;
+        //public static Assembly EntryAssembly => entryAssembly ?? (entryAssembly = Assembly.GetEntryAssembly());
 
-                if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.Id}")) return currentUser;
+        //private static string assemblyName;
+        //private static ICommand loadAppsCommand;
 
-                var userFile = new Item(currentUser.Id);
+        //public static string AssemblyName => assemblyName ?? (assemblyName = EntryAssembly.GetName().Name);
 
-                if (currentUser != null && !string.IsNullOrEmpty($"{currentUser.Id}")) return currentUser;
-
-                //if (!Application.Current.Properties.ContainsKey(Settings.CurrentUserKey) || Application.Current?.Properties?[Settings.CurrentUserKey] == null) return null;
-                //var cached = Application.Current?.Properties?[Settings.CurrentUserKey]?.ToString();
-                //if (cached != null)
-                //{
-                //    currentUser = new Item(cached);
-                //}
-                return currentUser;
-            }
-            set
-            {
-                currentUser = value;
-                if (currentUser == null)
-                {
-                    //Preferences.Remove(Settings.CurrentUserKey);
-                    //Application.Current.Properties.Remove(Settings.CurrentUserKey);
-                }
-                else
-                {
-                    currentUser.ToFile<Item>();
-                    var userJson = currentUser.ToJson();
-                    //Preferences.Set(Settings.CurrentUserKey, userJson);
-                    //Preferences.Set($"{Settings.CurrentUserKey}-UserName", currentUser.Id);
-
-                    //Application.Current.Properties[Settings.CurrentUserKey] = userJson;
-                    //Application.Current.Properties[$"{Settings.CurrentUserKey}-UserName"] = currentUser.Id;
-                }
-
-                //Application.Current.SavePropertiesAsync();
-
-                OnCurrentUserChanged?.Invoke(currentUser, new CurrentUserChangedEventArgs(currentUser.Id));
-                //SetProperty(ref currentUser, value);
-                //Trace.WriteLine($"{AssemblyName}.CurrentUser.Set:{currentUser}");
-            }
-        }
     }
 }

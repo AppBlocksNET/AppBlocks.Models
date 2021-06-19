@@ -87,9 +87,9 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void ItemHttpTest()
         {
-            var group = Models.Settings.GroupId;
+            var group = Context.GroupId;
             Assert.IsTrue(group != null && group != "Test");
-            var item = new Item(new System.Uri($"{Models.Settings.AppBlocksBlocksServiceUrl}{group}"));
+            var item = new Item(new System.Uri($"{Context.AppBlocksBlocksServiceUrl}{group}"));
 
             Assert.IsTrue(item.Children != null);
 

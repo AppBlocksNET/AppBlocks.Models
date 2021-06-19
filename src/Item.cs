@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -21,7 +22,8 @@ namespace AppBlocks.Models
     /// <summary>
     /// Item
     /// </summary>
-    public partial class Item : INotifyPropertyChanged //Item // INotifyPropertyChanged // : Item
+    [Serializable]
+    public class Item : INotifyPropertyChanged //Item // INotifyPropertyChanged // : Item
     {
         private readonly ILogger<Item> _logger;
         public event PropertyChangedEventHandler PropertyChanged;
@@ -210,29 +212,29 @@ namespace AppBlocks.Models
         /// FromJson
         /// </summary>
         /// <param name="json"></param>
-        public T FromJson<T>(string json) where T : Item
+        public static T FromJson<T>(string json) where T : Item
         {
             var typeName = typeof(T).FullName;
-            _logger?.LogInformation($"{typeof(Item).Name}.FromJson<{typeName}>({json}) started:{DateTime.Now.ToShortTimeString()}");
+            //_logger?.LogInformation($"{typeof(Item).Name}.FromJson<{typeName}>({json}) started:{DateTime.Now.ToShortTimeString()}");
 
             var jsonFile = Common.FromFile(json, typeName);
             if (!string.IsNullOrEmpty(jsonFile)) json = jsonFile;
 
             if (typeName == "AppBlocks.Models.User")
             {
-                json = Models.Settings.AppBlocksServiceUrl + "/account/authenticate";// Models.Settings.GroupId
+                json = Context.AppBlocksServiceUrl + "/account/authenticate";// Models.Settings.GroupId
             }
 
-            if (json.ToLower().StartsWith("http") || json == Models.Settings.GroupId || string.IsNullOrEmpty(json))
+            if (json.ToLower().StartsWith("http") || json == Context.GroupId || string.IsNullOrEmpty(json))
             {
-                return FromUri<T>(!string.IsNullOrEmpty(json) && json != Models.Settings.GroupId ? new Uri(json) : null);
+                return FromUri<T>(!string.IsNullOrEmpty(json) && json != Context.GroupId ? new Uri(json) : null);
             }
             else
             {
-                if (string.IsNullOrEmpty(json) || json == Models.Settings.GroupId) return default;
+                if (string.IsNullOrEmpty(json) || json == Context.GroupId) return null;
 
                 var jsonTrimmed = json.Trim();
-                if (!jsonTrimmed.StartsWith("[") && !jsonTrimmed.StartsWith("{")) return default;
+                if (!jsonTrimmed.StartsWith("[") && !jsonTrimmed.StartsWith("{")) return null;
 
                 var array = json.StartsWith("[") && json.EndsWith("]");
 
@@ -240,7 +242,7 @@ namespace AppBlocks.Models
 
                 var items = JsonSerializer.Deserialize<List<T>>(json);
 
-                if (items == null) return default;
+                if (items == null) return null;
 
                 var item = items.FirstOrDefault();
                 item.SetChildren(items);
@@ -248,7 +250,7 @@ namespace AppBlocks.Models
             }
         }
 
-        public async Task<T> FromJsonAsync<T>(string json) where T : Item
+        public static async Task<T> FromJsonAsync<T>(string json) where T : Item
         {
             return FromJson<T>(json);
         }
@@ -293,14 +295,14 @@ namespace AppBlocks.Models
         /// FromList
         /// </summary>
         /// <param name="items"></param>
-        public T FromList<T>(List<Item> items) where T : Item => (items.SetChildren().SingleOrDefault(i => i.TypeId == Models.Settings.GroupTypeId) ?? items.SetChildren().FirstOrDefault()) as T;
+        public static T FromList<T>(List<Item> items) where T : Item => (items.SetChildren().SingleOrDefault(i => i.TypeId == Context.GroupTypeId) ?? items.SetChildren().FirstOrDefault()) as T;
 
         /// <summary>
         /// FromService
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public T FromService<T>(string id = null) where T : Item => FromJson<T>(!string.IsNullOrEmpty(id) ? id : Models.Settings.GroupId);
+        public static T FromService<T>(string id = null) where T : Item => FromJson<T>(!string.IsNullOrEmpty(id) ? id : Context.GroupId);
 
         /// <summary>
         /// FromServiceAsync
@@ -308,7 +310,7 @@ namespace AppBlocks.Models
         /// <typeparam name="T"></typeparam>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<T> FromServiceAsync<T>(string id = null) where T : Item => await FromJsonAsync<T>(!string.IsNullOrEmpty(id) ? id : Settings.GroupId);
+        public static async Task<T> FromServiceAsync<T>(string id = null) where T : Item => await FromJsonAsync<T>(!string.IsNullOrEmpty(id) ? id : Context.GroupId);
 
         //if (string.IsNullOrEmpty(id)) id = Settings.GroupId;
         //_logger?.LogInformation($"{typeof(T).Name}.FromService({id}) started:{DateTime.Now.ToShortTimeString()}");
@@ -355,10 +357,10 @@ namespace AppBlocks.Models
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public T FromUri<T>(Uri uri = null) where T : Item
+        public static T FromUri<T>(Uri uri = null) where T : Item
         {
-            if (uri == null) uri = new Uri(typeof(T).FullName != "AppBlocks.Models.User" ? Models.Settings.AppBlocksBlocksServiceUrl + Models.Settings.GroupId : Models.Settings.AppBlocksServiceUrl + "/account/authenticate");
-            _logger?.LogInformation($"{typeof(Item).Name}.FromUri({uri}) started:{DateTime.Now.ToShortTimeString()}");
+            if (uri == null) uri = new Uri(typeof(T).FullName != "AppBlocks.Models.User" ? Context.AppBlocksBlocksServiceUrl + Context.GroupId : Context.AppBlocksServiceUrl + "/account/authenticate");
+            //_logger?.LogInformation($"{typeof(Item).Name}.FromUri({uri}) started:{DateTime.Now.ToShortTimeString()}");
             var content = string.Empty;
             try
             {
@@ -367,7 +369,7 @@ namespace AppBlocks.Models
                 // response.GetResponseStream();
                 using (var response = (HttpWebResponse)request.GetResponse())
                 {
-                    _logger?.LogInformation($"HttpStatusCode:{response.StatusCode}");
+                    //_logger?.LogInformation($"HttpStatusCode:{response.StatusCode}");
                     var responseValue = string.Empty;
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
@@ -390,9 +392,10 @@ namespace AppBlocks.Models
             }
             catch (Exception exception)
             {
-                _logger?.LogInformation($"{nameof(Item)}.FromUri({uri}) ERROR:{exception.Message} {exception}");
+                //_logger?.LogInformation($"{nameof(Item)}.FromUri({uri}) ERROR:{exception.Message} {exception}");
+                Trace.WriteLine($"{nameof(Item)}.FromUri({uri}) ERROR:{exception.Message} {exception}");
             }
-            _logger?.LogInformation($"content:{content}");
+            //_logger?.LogInformation($"content:{content}");
 
             return FromJson<T>(content);
         }

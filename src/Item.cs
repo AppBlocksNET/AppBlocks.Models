@@ -187,25 +187,25 @@ namespace AppBlocks.Models
         /// <returns></returns>
         public static IEnumerable<Item> FromDataReader(IDataReader reader) => reader.Select(r => new Item
         {
-            Created = r["created"] is DBNull ? DateTime.MinValue : DateTime.Parse(r["created"].ToString()),
-            CreatorId = r["creatorid"] is DBNull ? null : r["creatorid"].ToString(),
-            Data = r["data"] is DBNull ? null : r["data"].ToString(),
-            Description = r["description"] is DBNull ? null : r["description"].ToString(),
-            Edited = r["updated"] is DBNull ? DateTime.MinValue : DateTime.Parse(r["updated"].ToString()),
-            EditorId = r["EditorId"] is DBNull ? null : r["EditorId"].ToString(),
-            FullPath = r["FullPath"] == null || r["FullPath"] is DBNull ? null : r["FullPath"].ToString(),
-            Icon = r["icon"] is DBNull ? null : r["icon"].ToString(),
-            Id = r["id"] is DBNull ? null : r["id"].ToString(),
-            Image = r["image"] is DBNull ? null : r["image"].ToString(),
-            Link = r["link"] is DBNull ? null : r["link"].ToString(),
-            Name = r["name"] is DBNull ? null : r["name"].ToString(),
-            OwnerId = r["ownerid"] is DBNull ? null : r["ownerid"].ToString(),
-            ParentId = r["parentid"] is DBNull ? null : r["parentid"].ToString(),
-            Path = r["path"] is DBNull ? null : r["path"].ToString(),
-            Source = r["source"] is DBNull ? null : r["source"].ToString(),
-            Status = r["status"] is DBNull ? null : r["status"].ToString(),
-            Title = r["title"] is DBNull ? null : r["title"].ToString(),
-            TypeId = r["typeid"] is DBNull ? null : r["typeid"].ToString()
+            Created = r["created"] == null || r["created"] is DBNull ? DateTime.MinValue : DateTime.Parse(r["created"].ToString()),
+            CreatorId = r["creatorid"] == null || r["creatorid"] is DBNull ? null : r["creatorid"].ToString(),
+            Data = r["data"] == null || r["data"] is DBNull ? null : r["data"].ToString(),
+            Description = r["description"] == null || r["description"] is DBNull ? null : r["description"].ToString(),
+            Edited = r["updated"] == null || r["updated"] is DBNull ? DateTime.MinValue : DateTime.Parse(r["updated"].ToString()),
+            EditorId = r["EditorId"] == null || r["EditorId"] is DBNull ? null : r["EditorId"].ToString(),
+            FullPath = r["FullPath"] == null || r["FullPath"] == null || r["FullPath"] is DBNull ? null : r["FullPath"].ToString(),
+            Icon = r["icon"] == null || r["icon"] is DBNull ? null : r["icon"].ToString(),
+            Id = r["id"] == null || r["id"] is DBNull ? null : r["id"].ToString(),
+            Image = r["image"] == null || r["image"] is DBNull ? null : r["image"].ToString(),
+            Link = r["link"] == null || r["link"] is DBNull ? null : r["link"].ToString(),
+            Name = r["created"] == null || r["created"] is DBNull ? null : r["name"].ToString(),
+            OwnerId = r["ownerid"] == null || r["ownerid"] is DBNull ? null : r["ownerid"].ToString(),
+            ParentId = r["parentid"] == null || r["parentid"] is DBNull ? null : r["parentid"].ToString(),
+            Path = r["path"] == null || r["path"] is DBNull ? null : r["path"].ToString(),
+            Source = r["source"] == null || r["source"] is DBNull ? null : r["source"].ToString(),
+            Status = r["status"] == null || r["status"] is DBNull ? null : r["status"].ToString(),
+            Title = r["title"] == null || r["title"] is DBNull ? null : r["title"].ToString(),
+            TypeId = r["typeid"] == null || r["typeid"] is DBNull ? null : r["typeid"].ToString()
         }).ToList();
 
         /// <summary>

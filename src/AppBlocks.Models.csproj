@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>https://appblocks.net</PackageProjectUrl>
@@ -9,14 +9,14 @@
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>The BASE of ALL THE THINGS</Description>
-    <AssemblyVersion>0.0.15.0</AssemblyVersion>
-    <FileVersion>0.0.15.0</FileVersion>
-    <Version>0.0.15</Version>
+    <AssemblyVersion>0.0.16.0</AssemblyVersion>
+    <FileVersion>0.0.16.0</FileVersion>
+    <Version>0.0.16</Version>
     <Company>AppBlocks, David Walker, Radical Dave</Company>
     <Authors>David Walker, Radical Dave</Authors>
     <Copyright>AppBlocks, David Walker, Radical Dave</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>Context fixes</PackageReleaseNotes>
+    <PackageReleaseNotes>Added null checks to Item.FromDataReader</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

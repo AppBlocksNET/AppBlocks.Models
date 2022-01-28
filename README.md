@@ -7,4 +7,5 @@ PM> ```Install-Package AppBlocks.Models```
 
 ## Copyright
 [AppBlocks](https://appblocks.net), [David Walker](https://radicaldave.com), [Radical Dave](https://github.com/radical-dave), [Sitecore Dave](https://github.com/sitecoredave)
+
 MIT License: https://github.com/AppBlocksNet/AppBlocks.Models/blob/main/LICENSE

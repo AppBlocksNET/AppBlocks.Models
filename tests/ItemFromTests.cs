@@ -1,4 +1,3 @@
-using AppBlocks.DataReaders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
 using System.IO;
@@ -21,18 +20,19 @@ namespace AppBlocks.Models.Tests
         {
             var path = ".\\data-tests\\ItemChildrenDeserializationTest.json";
             //var folder = ApplicationData.Current.LocalFolder;
-            //var file = await folder.GetFileAsync(path);
+            //var file = folder.GetFileAsync(path).Result;
             //var fileStream = await file.OpenReadAsync(path);
             //var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
             //var inputStream = fileStream.GetInputStreamAt(0);
 
-            var reader = new FileDataReader(path);
+            //var reader = new FileDataReader(path);
             //var reader = IDataReader(fileStream);
 
             //var reader = new System.Windows.Storage.Streams.DataReader(input);
             //var results = new Sql().ExecuteAsync.Results
             //var item = Item.FromDataReader(".\\data-tests\\ItemChildrenDeserializationTest.json");
-            var item = Item.FromDataReader(reader);
+            //var item = Item.FromDataReader(reader);
+            var item = Item.FromJson<Item>(path);
             Assert.IsTrue(item != null);
             //Assert.IsTrue(item.Children.Count() > 2);
             //item.ToFile();

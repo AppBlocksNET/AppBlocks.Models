@@ -1,9 +1,8 @@
 ﻿using AppBlocks.Config;
+using AppBlocks.Models.Extensions;
 using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
-using System.Linq;
 
 namespace AppBlocks.Models.Tests
 {

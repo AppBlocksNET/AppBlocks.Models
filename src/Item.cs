@@ -43,14 +43,50 @@ namespace AppBlocks.Models
             }
         }
 
+        public Item(Uri sourceUri) => FromItem(Item.FromUri<Item>(sourceUri));
+
+        public Item(string json)
+        {
+            var item = FromJson<Item>(json);
+            if (item != null)
+            {
+                Created = item.Created;
+                CreatorId = item.CreatorId;
+                Edited = item.Edited;
+                EditorId = item.EditorId;
+                Data = item.Data;
+                Icon = item.Icon;
+                Image = item.Image;
+                Id = item.Id;
+                Name = item.Name;
+                OwnerId = item.OwnerId;
+                ParentId = item.ParentId;
+                Path = item.Path;
+                Title = item.Title;
+                TypeId = item.TypeId;
+                Children = item.Children;
+            }
+        }
         public Item(ILogger<Item> logger = null)
         {
             _logger = logger;
         }
+        public Item(List<Item> items) => this.FromItem(FromList<Item>(items));
+        ////(this IConfigurationRoot config) => config.GetSection("AppBlocks").AsEnumerable().ToImmutableDictionary(x => x.Key, x => x.Value);
+        #endregion
 
-        [JsonPropertyName("status")]
-        [IgnoreDataMember]
-        public string Status { get; set; }
+        [DataMember(Name = "children")]
+        [JsonPropertyName("children")]
+        [XmlArrayAttribute("children")]
+        public List<Item> Children { get; set; }
+
+        [DataMember(Name = "data")]
+        [JsonPropertyName("")]
+        public string Data { get; set; }
+
+        [DataMember(Name = "description")]
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
 
         [JsonPropertyName("fullPath")]
         [NotMapped]
@@ -106,14 +142,6 @@ namespace AppBlocks.Models
         [JsonPropertyName("path")]
         public string Path { get; set; }
 
-        [DataMember(Name = "data")]
-        [JsonPropertyName("")]
-        public string Data { get; set; }
-
-        [DataMember(Name = "description")]
-        [JsonPropertyName("description")]
-        public string Description { get; set; }
-
         [DataMember(Name = "link")]
         [JsonPropertyName("link")]
         public string Link { get; set; }
@@ -122,12 +150,14 @@ namespace AppBlocks.Models
         [JsonPropertyName("source")]
         public string Source { get; set; }
 
+        [JsonPropertyName("status")]
+        [IgnoreDataMember]
+        public string Status { get; set; }
+
         [DataMember(Name = "title")]
         [JsonPropertyName("title")]
         public string Title { get; set; }
 
-        //[DataMember(Name = "type")]
-        //[JsonPropertyName("type")]
         [JsonIgnore]
         [XmlIgnore]
         [Browsable(false)]
@@ -142,7 +172,6 @@ namespace AppBlocks.Models
         [XmlIgnore]
         [Browsable(false)]
         public IEnumerable<Item> TypeOf { get; set; }
-
 
         [DataMember(Name = "created")]
         [JsonPropertyName("created")]
@@ -163,7 +192,6 @@ namespace AppBlocks.Models
         [JsonPropertyName("creatorid")]
         public string CreatorId { get; set; }
 
-
         [DataMember(Name = "edited")]
         [JsonPropertyName("edited")]
         public DateTime Edited { get; set; }
@@ -177,38 +205,6 @@ namespace AppBlocks.Models
         [DataMember(Name = "editorId")]
         [JsonPropertyName("editorid")]
         public string EditorId { get; set; }
-
-
-        [DataMember(Name = "children")]
-        [JsonPropertyName("children")]
-        [XmlArrayAttribute("children")]
-        [Browsable(false)]
-        public List<Item> Children { get; set; }
-
-        public Item(Uri sourceUri) => FromItem(Item.FromUri<Item>(sourceUri));
-
-        public Item(string json)
-        {
-            var item = FromJson<Item>(json);
-            if (item != null)
-            {
-                Created = item.Created;
-                CreatorId = item.CreatorId;
-                Edited = item.Edited;
-                EditorId = item.EditorId;
-                Data = item.Data;
-                Icon = item.Icon;
-                Image = item.Image;
-                Id = item.Id;
-                Name = item.Name;
-                OwnerId = item.OwnerId;
-                ParentId = item.ParentId;
-                Path = item.Path;
-                Title = item.Title;
-                TypeId = item.TypeId;
-                Children = item.Children;
-            }
-        }
 
         //public static explicit operator Item(JToken v)
         //{
@@ -602,10 +598,6 @@ namespace AppBlocks.Models
 
         //public static List<Item> FromXmlList<T>(string content = null, string xslt = null) where T : List<Item> => this.FromJsonList<Item>(content);
 
-        public Item(List<Item> items) => this.FromItem(FromList<Item>(items));
-        ////(this IConfigurationRoot config) => config.GetSection("AppBlocks").AsEnumerable().ToImmutableDictionary(x => x.Key, x => x.Value);
-        #endregion
-
         //public T GetSetting<T>(string key, string defaultValue = null) => (T)Convert.ChangeType(Settings.GetValueOrDefault(key, defaultValue) ?? defaultValue, typeof(T));
 
 
@@ -663,21 +655,33 @@ namespace AppBlocks.Models
         /// <param name="items"></param>
         public void SetChildren<T>(List<T> items) where T : Item
         {
-            if (Children.Any())
+            //foreach(var child in items.Where(i => !string.IsNullOrEmpty(i.ParentId)))
+            //{
+            //    var parent = items.FirstOrDefault(i => i.Id == child.ParentId);
+            //    if (parent.Children.Contains(child)) parent.Children.ToList().Add(child);
+            //}
+            //if (Children.Any())
+            //{
+            foreach (var item in items)
             {
-                foreach (var item in Children)
+                //var parent = items.FirstOrDefault(i => i.Id == item.ParentId);
+                //if (!parent.Children.Contains(item)) parent.Children.ToList().Add(item);
+                Children = items?.Where(i => i.ParentId == Id).ToList<Item>();
+
+                foreach (var child in Children)
                 {
-                    var parent = items.FirstOrDefault(i => i.Id == item.ParentId);
-                    if (!parent.Children.Contains(item)) parent.Children.ToList().Add(item);
+                    child.SetChildren(items);
                 }
             }
+        
+            //}
 
-            Children = items?.Where(i => i.ParentId == Id).ToList<Item>();
+            //Children = items?.Where(i => i.ParentId == Id).ToList<Item>();
 
-            foreach (var item in Children)
-            {
-                item.SetChildren(items);
-            }
+            //foreach (var item in Children)
+            //{
+            //    item.SetChildren(items);
+            //}
         }
 
         /// <summary>

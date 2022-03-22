@@ -31,6 +31,9 @@
     </Content>
     <Content Include="Data-Tests\Item.Test.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data-Tests\ItemChildrenDeserializationTest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>	
     <Content Include="Data-Tests\ItemDeserializationTest.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -41,7 +44,7 @@
     <Content Include="Data-Tests\UserDeserializationTest.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Data-Tests\ItemChildrenDeserializationTest.json">
+    <Content Include="Data-Tests\ItemChildren.Test.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

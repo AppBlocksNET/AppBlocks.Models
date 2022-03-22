@@ -1,3 +1,4 @@
+using AppBlocks.Models.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.IO;
@@ -49,6 +50,19 @@ namespace AppBlocks.Models.Tests
 
             Assert.IsTrue(item != null);
             Assert.IsTrue(item.Children != null && item.Children.Count() > 0, $"{item?.Id}:{item?.Children?.Count()}");
+        }
+
+        [TestMethod]
+        public void ItemFindChildTest()
+        {
+            var item = new Item($".\\data-tests\\ItemChildren.Test.json");
+            Assert.IsTrue(item != null);
+            Assert.IsTrue(item.Children != null && item.Children.Count() > 0, $"{item?.Id}:{item?.Children?.Count()}");
+            //var child = item.FindChildren<Item>(i => i.Name == "MeetupImportId");
+            //var child = item.FindChild<Item>(i => i.Title == "Settings");
+            var child = item.FindChild<Item>(i => i.Title == "MeetupImportId");
+            //var test = item.Children.Find(i => i.Title == "Settings");
+            Assert.IsTrue(child != null && child.Count > 0);
         }
 
         [TestMethod]

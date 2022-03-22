@@ -1,5 +1,7 @@
-﻿using System;
+﻿using AppBlocks.Models;
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -12,6 +14,24 @@ namespace AppBlocks.Models.Extensions
 {
     public static class ItemExtensions
     {
+        public static List<T> FindChild<T>(this Item item, Func<Item, bool> filter = null) where T : Item
+        {
+            var results = new List<T>();
+            foreach(var child in item.Children)
+            {
+                if (child.Children.Any())
+                {
+                    results.AddRange(child.FindChild<T>(filter));
+                }
+                else
+                {
+                    var queue = new List<T> { (T)child };
+                    if (queue.Count > 0) results.AddRange((IEnumerable<T>)queue.Where(filter ?? (s => true)));
+                    queue.Clear();
+                }
+            }
+            return results;
+        }
 
         /// <summary>
         /// FromJson

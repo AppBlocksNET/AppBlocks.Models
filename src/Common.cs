@@ -36,10 +36,10 @@ namespace AppBlocks.Models
         /// </summary>
         /// <param name="filePathOrId"></param>
         /// <returns></returns>
-        public static string GetFilepath(string filePathOrId, string typeName = "Item")
+        public static string GetFilepath(string filePathOrId, string typeName = "Item", string schema = "json")
         {
             if (File.Exists(filePathOrId)) return filePathOrId;
-            return $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\app_data\\blocks\\{typeName}.{filePathOrId}.json";
+            return $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\app_data\\blocks\\{typeName}.{filePathOrId}.{schema}";
         }
 
     }

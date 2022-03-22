@@ -16,6 +16,8 @@ using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace AppBlocks.Models
 {
@@ -46,16 +48,6 @@ namespace AppBlocks.Models
             _logger = logger;
         }
 
-        public Item(Uri sourceUri) => FromItem(FromUri<Item>(sourceUri));
-
-        public Item(string json) => FromJson<Item>(json);
-
-        public Item(List<Item> items) => FromItem(FromList<Item>(items));
-        ////(this IConfigurationRoot config) => config.GetSection("AppBlocks").AsEnumerable().ToImmutableDictionary(x => x.Key, x => x.Value);
-        #endregion
-
-        //public T GetSetting<T>(string key, string defaultValue = null) => (T)Convert.ChangeType(Settings.GetValueOrDefault(key, defaultValue) ?? defaultValue, typeof(T));
-
         [JsonPropertyName("status")]
         [IgnoreDataMember]
         public string Status { get; set; }
@@ -85,10 +77,14 @@ namespace AppBlocks.Models
 
         [IgnoreDataMember]
         [JsonIgnore]
+        [XmlIgnore]
+        [Browsable(false)]
         public IEnumerable<Item> OwnedBy { get; set; }
 
         [IgnoreDataMember]
         [JsonIgnore]
+        [XmlIgnore]
+        [Browsable(false)]
         public Item Owner { get; set; }
 
         [DataMember(Name = "ownerId")]
@@ -98,6 +94,8 @@ namespace AppBlocks.Models
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         [JsonIgnore]
+        [XmlIgnore]
+        [Browsable(false)]
         public virtual Item Parent { get; set; }
 
         [DataMember(Name = "parentid")]
@@ -131,6 +129,8 @@ namespace AppBlocks.Models
         //[DataMember(Name = "type")]
         //[JsonPropertyName("type")]
         [JsonIgnore]
+        [XmlIgnore]
+        [Browsable(false)]
         public virtual Item Type { get; set; }
 
         [DataMember(Name = "typeId")]
@@ -139,6 +139,8 @@ namespace AppBlocks.Models
 
         [IgnoreDataMember]
         [JsonIgnore]
+        [XmlIgnore]
+        [Browsable(false)]
         public IEnumerable<Item> TypeOf { get; set; }
 
 
@@ -148,10 +150,14 @@ namespace AppBlocks.Models
 
         [IgnoreDataMember]
         [JsonIgnore]
+        [XmlIgnore]
+        [Browsable(false)]
         public List<Item> CreatedBy { get; set; }
 
         [IgnoreDataMember]
         [JsonIgnore]
+        [XmlIgnore]
+        [Browsable(false)]
         public Item Creator { get; set; }
         [DataMember(Name = "creatorId")]
         [JsonPropertyName("creatorid")]
@@ -164,6 +170,8 @@ namespace AppBlocks.Models
 
         [IgnoreDataMember]
         [JsonIgnore]
+        [XmlIgnore]
+        [Browsable(false)]
         public Item Editor { get; set; }
 
         [DataMember(Name = "editorId")]
@@ -173,7 +181,34 @@ namespace AppBlocks.Models
 
         [DataMember(Name = "children")]
         [JsonPropertyName("children")]
-        public IEnumerable<Item> Children { get; set; }
+        [XmlArrayAttribute("children")]
+        [Browsable(false)]
+        public List<Item> Children { get; set; }
+
+        public Item(Uri sourceUri) => FromItem(Item.FromUri<Item>(sourceUri));
+
+        public Item(string json)
+        {
+            var item = FromJson<Item>(json);
+            if (item != null)
+            {
+                Created = item.Created;
+                CreatorId = item.CreatorId;
+                Edited = item.Edited;
+                EditorId = item.EditorId;
+                Data = item.Data;
+                Icon = item.Icon;
+                Image = item.Image;
+                Id = item.Id;
+                Name = item.Name;
+                OwnerId = item.OwnerId;
+                ParentId = item.ParentId;
+                Path = item.Path;
+                Title = item.Title;
+                TypeId = item.TypeId;
+                Children = item.Children;
+            }
+        }
 
         //public static explicit operator Item(JToken v)
         //{
@@ -187,6 +222,7 @@ namespace AppBlocks.Models
         /// <returns></returns>
         public static IEnumerable<Item> FromDataReader(IDataReader reader) => reader.Select(r => new Item
         {
+            //for (int i = 0; i < r.FieldCount; i++) { //TODO: Do this dynamically?!
             Created = r["created"] == null || r["created"] is DBNull ? DateTime.MinValue : DateTime.Parse(r["created"].ToString()),
             CreatorId = r["creatorid"] == null || r["creatorid"] is DBNull ? null : r["creatorid"].ToString(),
             Data = r["data"] == null || r["data"] is DBNull ? null : r["data"].ToString(),
@@ -207,53 +243,6 @@ namespace AppBlocks.Models
             Title = r["title"] == null || r["title"] is DBNull ? null : r["title"].ToString(),
             TypeId = r["typeid"] == null || r["typeid"] is DBNull ? null : r["typeid"].ToString()
         }).ToList();
-
-        /// <summary>
-        /// FromJson
-        /// </summary>
-        /// <param name="json"></param>
-        public static T FromJson<T>(string json) where T : Item
-        {
-            var typeName = typeof(T).FullName;
-            //_logger?.LogInformation($"{typeof(Item).Name}.FromJson<{typeName}>({json}) started:{DateTime.Now.ToShortTimeString()}");
-
-            var jsonFile = Common.FromFile(json, typeName);
-            if (!string.IsNullOrEmpty(jsonFile)) json = jsonFile;
-
-            if (typeName == "AppBlocks.Models.User")
-            {
-                json = Context.AppBlocksServiceUrl + "/account/authenticate";// Models.Settings.GroupId
-            }
-
-            if (json.ToLower().StartsWith("http") || json == Context.GroupId || string.IsNullOrEmpty(json))
-            {
-                return FromUri<T>(!string.IsNullOrEmpty(json) && json != Context.GroupId ? new Uri(json) : null);
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(json) || json == Context.GroupId) return null;
-
-                var jsonTrimmed = json.Trim();
-                if (!jsonTrimmed.StartsWith("[") && !jsonTrimmed.StartsWith("{")) return null;
-
-                var array = json.StartsWith("[") && json.EndsWith("]");
-
-                if (!array) return JsonSerializer.Deserialize<T>(json);
-
-                var items = JsonSerializer.Deserialize<List<T>>(json);
-
-                if (items == null) return null;
-
-                var item = items.FirstOrDefault();
-                item.SetChildren(items);
-                return item;
-            }
-        }
-
-        public static async Task<T> FromJsonAsync<T>(string json) where T : Item
-        {
-            return FromJson<T>(json);
-        }
 
         /// <summary>
         /// FromEnumerable
@@ -297,60 +286,141 @@ namespace AppBlocks.Models
         /// <param name="items"></param>
         public static T FromList<T>(List<Item> items) where T : Item => (items.SetChildren().SingleOrDefault(i => i.TypeId == Context.GroupTypeId) ?? items.SetChildren().FirstOrDefault()) as T;
 
+
+        /// <summary>
+        /// FromJson
+        /// </summary>
+        /// <param name="content"></param>
+        public static T FromJson<T>(string content) where T : Item
+        {
+            var typeName = typeof(T).FullName;
+            //_logger?.LogInformation($"{typeof(Item).Name}.FromJson<{typeName}>({json}) started:{DateTime.Now.ToShortTimeString()}");
+
+            var jsonFile = Common.FromFile(content, typeName);
+            if (!string.IsNullOrEmpty(jsonFile)) content = jsonFile;
+
+            if (typeName == "AppBlocks.Models.User")
+            {
+                content = Context.AppBlocksServiceUrl + "/account/authenticate";// Models.Settings.GroupId
+            }
+
+            if (content.ToLower().StartsWith("http") || content == Context.GroupId || string.IsNullOrEmpty(content))
+            {
+                return FromUri<T>(!string.IsNullOrEmpty(content) && content != Context.GroupId ? new Uri(content) : default);
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(content) || content == Context.GroupId) return default;
+
+                var jsonTrimmed = content.Trim();
+
+
+
+                //if (!jsonTrimmed.StartsWith("[") && !jsonTrimmed.StartsWith("{")) return default;
+
+                //var array = content.StartsWith("[") && content.EndsWith("]");
+
+                //if (!array) return JsonSerializer.Deserialize<T>(content);
+                if (jsonTrimmed.StartsWith("[") && jsonTrimmed.EndsWith("]"))
+                {
+                    var items = JsonSerializer.Deserialize<List<T>>(content);
+                    items.FirstOrDefault().SetChildren<T>(items);
+                    return items.FirstOrDefault();
+                }
+                else if (jsonTrimmed.StartsWith("{") && jsonTrimmed.EndsWith("}"))
+                {
+                    return JsonSerializer.Deserialize<T>(content);
+                }
+
+                else if (jsonTrimmed.StartsWith("<") && jsonTrimmed.EndsWith(">"))
+                {
+                    return FromXml<T>(jsonTrimmed, null);
+                }
+                else if (!string.IsNullOrEmpty(jsonTrimmed))
+                {
+                    var item = new Item
+                    {
+                        Id = jsonTrimmed,
+                        Name = jsonTrimmed,
+                        Path = jsonTrimmed,
+                        Title = jsonTrimmed,
+                        Created = DateTime.Now,
+                        Edited = DateTime.Now
+                    };
+                    var results = (T)item;
+                    return results;
+                }
+
+                if (typeName == "AppBlocks.Models.Item")
+                {
+                    var items = JsonSerializer.Deserialize<List<T>>(content);
+
+                    if (items == null) return default;
+
+                    //var results = items.FirstOrDefault();
+                    items.FirstOrDefault().SetChildren<T>(items);
+                    return items.FirstOrDefault();
+                }
+                return default;
+            }
+        }
+
+
+        /// <summary>
+        /// FromJson
+        /// </summary>
+        /// <param name="json"></param>
+        public static T FromJsonList<T>(string json) where T : List<Item>
+        {
+            var typeName = typeof(T).FullName;
+            //_logger?.LogInformation($"{typeof(Item).Name}.FromJson<{typeName}>({json}) started:{DateTime.Now.ToShortTimeString()}");
+
+            var jsonFile = Common.FromFile(json, typeName);
+            if (!string.IsNullOrEmpty(jsonFile)) json = jsonFile;
+
+            if (typeName == "AppBlocks.Models.User")
+            {
+                json = Context.AppBlocksServiceUrl + "/account/authenticate";// Models.Settings.GroupId
+            }
+
+            if (json.ToLower().StartsWith("http") || json == Context.GroupId || string.IsNullOrEmpty(json))
+            {
+                return FromUriList<T>(!string.IsNullOrEmpty(json) && json != Context.GroupId ? new Uri(json) : default);
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(json) || json == Context.GroupId) return default;
+
+                var jsonTrimmed = json.Trim();
+                if (!jsonTrimmed.StartsWith("[") && !jsonTrimmed.StartsWith("{")) return default;
+
+                var array = json.StartsWith("[") && json.EndsWith("]");
+
+                if (!array) return JsonSerializer.Deserialize<T>(json);
+
+                var items = JsonSerializer.Deserialize<T>(json);
+
+                if (items == null) return default;
+
+                //var results = items.FirstOrDefault();
+                items.FirstOrDefault().SetChildren(items);
+                return items;
+            }
+        }
+
         /// <summary>
         /// FromService
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static T FromService<T>(string id = null) where T : Item => FromJson<T>(!string.IsNullOrEmpty(id) ? id : Context.GroupId);
+        public static T FromService<T>(string id = null) where T : Item => Item.FromJson<T>(!string.IsNullOrEmpty(id) ? id : Context.GroupId);
 
         /// <summary>
-        /// FromServiceAsync
+        /// FromServiceList
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static async Task<T> FromServiceAsync<T>(string id = null) where T : Item => await FromJsonAsync<T>(!string.IsNullOrEmpty(id) ? id : Context.GroupId);
-
-        //if (string.IsNullOrEmpty(id)) id = Settings.GroupId;
-        //_logger?.LogInformation($"{typeof(T).Name}.FromService({id}) started:{DateTime.Now.ToShortTimeString()}");
-        //var item = FromJson<T>(id);
-        //if (item == null)
-        //{
-        //    item = FromUri<T>(new Uri($"{Settings.AppBlocksBlocksServiceUrl}{id}"));
-
-        //    if (item != null)
-        //    {
-        //        item.ToFile<T>();
-        //    }
-        //}
-        //return item;
-
-        ///// <summary>
-        ///// FromSettings
-        ///// </summary>
-        ///// <typeparam name="T"></typeparam>
-        ///// <param name="settings"></param>
-        ///// <returns></returns>
-        //public static T FromSettings<T>(ICollection<Item> settings) where T : Item
-        //{
-        //    _logger?.LogInformation($"{typeof(T).Name}.FromSettings({settings}) started:{DateTime.Now.ToShortTimeString()}");
-        //    T results = default;
-        //    if (settings.Count() > 0)
-        //    {
-        //        var firstSetting = settings.FirstOrDefault();
-        //        if (firstSetting.Id != "refresh")
-        //        {
-        //            if (settings?.Count() > 1)
-        //            {
-        //                _logger?.LogInformation($"FromSettings: settings found - {settings?.Count()}");
-        //            }
-        //            return results;
-        //        }
-        //    }
-        //    _logger?.LogInformation($"FromSettings: {results?.Id}");
-        //    return results;
-        //}
+        public static T FromServiceList<T>(string id = null) where T : List<Item> => FromJsonList<T>(!string.IsNullOrEmpty(id) ? id : Context.GroupId);
 
         /// <summary>
         /// FromUri
@@ -397,14 +467,195 @@ namespace AppBlocks.Models
             }
             //_logger?.LogInformation($"content:{content}");
 
+            if (content.StartsWith("<"))
+            {
+                return FromXml<T>(content);
+            }
             return FromJson<T>(content);
         }
+
+
+        /// <summary>
+        /// FromUri
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        public static T FromUriList<T>(Uri uri = null) where T : List<Item>
+        {
+            if (uri == null) uri = new Uri(typeof(T).FullName != "AppBlocks.Models.User" ? Context.AppBlocksBlocksServiceUrl + Context.GroupId : Context.AppBlocksServiceUrl + "/account/authenticate");
+            //_logger?.LogInformation($"{typeof(Item).Name}.FromUri({uri}) started:{DateTime.Now.ToShortTimeString()}");
+            var content = string.Empty;
+            try
+            {
+                var request = (HttpWebRequest)WebRequest.Create(uri);
+                request.ServerCertificateValidationCallback = (message, cert, chain, errors) => { return true; };
+                // response.GetResponseStream();
+                using (var response = (HttpWebResponse)request.GetResponse())
+                {
+                    //_logger?.LogInformation($"HttpStatusCode:{response.StatusCode}");
+                    var responseValue = string.Empty;
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        var message = $"{typeof(Item).FullName} ERROR: Request failed. Received HTTP {response.StatusCode}";
+                        throw new ApplicationException(message);
+                    }
+
+                    // grab the response
+                    using (var responseStream = response.GetResponseStream())
+                    {
+                        if (responseStream != null)
+                            using (var reader = new StreamReader(responseStream))
+                            {
+                                responseValue = reader.ReadToEnd();
+                            }
+                    }
+
+                    content = responseValue;
+                }
+            }
+            catch (Exception exception)
+            {
+                //_logger?.LogInformation($"{nameof(Item)}.FromUri({uri}) ERROR:{exception.Message} {exception}");
+                Trace.WriteLine($"{nameof(Item)}.FromUri({uri}) ERROR:{exception.Message} {exception}");
+            }
+            //_logger?.LogInformation($"content:{content}");
+
+            if (content.StartsWith("<"))
+            {
+                return FromXmlList<T>(content);
+            }
+            return FromJsonList<T>(content);
+        }
+
+
+        /// <summary>
+        /// FromUri
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        public static T FromXml<T>(string content = null, string xslt = null) where T : Item
+        {
+            if (string.IsNullOrEmpty(content)) return default;
+            if (string.IsNullOrEmpty(xslt))
+            {
+                //xslt = Children?.FirstOrDefault(i => i.Name.EndsWith("XSL"))?.Data ?? string.Empty;
+            }
+            var xmlFile = Common.FromFile(content);
+            if (!string.IsNullOrEmpty(xmlFile)) content = xmlFile;
+
+            //if (uri == null) uri = new Uri(typeof(T).FullName != "AppBlocks.Models.User" ? Context.AppBlocksBlocksServiceUrl + Context.GroupId : Context.AppBlocksServiceUrl + "/account/authenticate");
+            //_logger?.LogInformation($"{typeof(Item).Name}.FromUri({uri}) started:{DateTime.Now.ToShortTimeString()}");
+
+            //var xmlDoc = new XmlDocument();
+            //xmlDoc.LoadXml(content);
+            //return (T)Item.FromJson<Item>(Newtonsoft.Json.JsonConvert.SerializeXmlNode(xmlDoc));
+            var serializer = new XmlSerializer(typeof(Item));
+            Item result;
+
+            using (TextReader reader = new StringReader(content))
+            {
+                result = (Item)serializer.Deserialize(reader);
+            }
+            return (T)result;
+        }
+
+        /// <summary>
+        /// FromUri
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        public static T FromXmlList<T>(string content = null, string xslt = null) where T : List<Item>
+        {
+            if (string.IsNullOrEmpty(content)) return default;
+            if (string.IsNullOrEmpty(xslt))
+            {
+                //xslt = item?.Children?.FirstOrDefault(i => i.Name.EndsWith("XSL"))?.Data ?? string.Empty;
+            }
+            var xmlFile = Common.FromFile(content);
+            if (!string.IsNullOrEmpty(xmlFile)) content = xmlFile;
+
+            //if (uri == null) uri = new Uri(typeof(T).FullName != "AppBlocks.Models.User" ? Context.AppBlocksBlocksServiceUrl + Context.GroupId : Context.AppBlocksServiceUrl + "/account/authenticate");
+            //_logger?.LogInformation($"{typeof(Item).Name}.FromUri({uri}) started:{DateTime.Now.ToShortTimeString()}");
+
+            //var xmlDoc = new XmlDocument();
+            //xmlDoc.LoadXml(content);
+            //return (T)FromJsonList<List<Item>>(Newtonsoft.Json.JsonConvert.SerializeXmlNode(xmlDoc));
+            
+            var serializer = new XmlSerializer(typeof(List<Item>));
+            List<Item> results;
+
+            using (TextReader reader = new StringReader(content))
+            {
+                results = (List<Item>)serializer.Deserialize(reader);
+            }
+            return (T)results;
+        }
+
+        //public static Item FromJson<Item>(string path) => FromJson<Item>(path);
+
+        //public static List<Item> FromJsonList<Item>(string path) => FromJsonList<Item>(path);
+
+        //public static Item FromService<T>(string id = null) where T : Item  => FromService<T>(id);
+        //public static List<Item> FromServiceList<T>(string id = null) where T : List<Item> => FromServiceList<T>(id);
+
+        //public static Item FromXml<T>(string content = null, string xslt = null) where T : Item => FromJson<Item>(content);
+
+        //public static List<Item> FromXmlList<T>(string content = null, string xslt = null) where T : List<Item> => this.FromJsonList<Item>(content);
+
+        public Item(List<Item> items) => this.FromItem(FromList<Item>(items));
+        ////(this IConfigurationRoot config) => config.GetSection("AppBlocks").AsEnumerable().ToImmutableDictionary(x => x.Key, x => x.Value);
+        #endregion
+
+        //public T GetSetting<T>(string key, string defaultValue = null) => (T)Convert.ChangeType(Settings.GetValueOrDefault(key, defaultValue) ?? defaultValue, typeof(T));
+
+
+        //if (string.IsNullOrEmpty(id)) id = Settings.GroupId;
+        //_logger?.LogInformation($"{typeof(T).Name}.FromService({id}) started:{DateTime.Now.ToShortTimeString()}");
+        //var item = FromJson<T>(id);
+        //if (item == null)
+        //{
+        //    item = FromUri<T>(new Uri($"{Settings.AppBlocksBlocksServiceUrl}{id}"));
+
+        //    if (item != null)
+        //    {
+        //        item.ToFile<T>();
+        //    }
+        //}
+        //return item;
+
+        ///// <summary>
+        ///// FromSettings
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <param name="settings"></param>
+        ///// <returns></returns>
+        //public static T FromSettings<T>(ICollection<Item> settings) where T : Item
+        //{
+        //    _logger?.LogInformation($"{typeof(T).Name}.FromSettings({settings}) started:{DateTime.Now.ToShortTimeString()}");
+        //    T results = default;
+        //    if (settings.Count() > 0)
+        //    {
+        //        var firstSetting = settings.FirstOrDefault();
+        //        if (firstSetting.Id != "refresh")
+        //        {
+        //            if (settings?.Count() > 1)
+        //            {
+        //                _logger?.LogInformation($"FromSettings: settings found - {settings?.Count()}");
+        //            }
+        //            return results;
+        //        }
+        //    }
+        //    _logger?.LogInformation($"FromSettings: {results?.Id}");
+        //    return results;
+        //}
+
+
 
         /// <summary>
         /// GetFilename
         /// </summary>
         /// <returns></returns>
-        public virtual string GetFilename(string typeName = "Item") => Common.GetFilepath(Id, typeName);
+        public virtual string GetFilename(string typeName = "Item", string schema = "json") => Common.GetFilepath(Id, typeName, schema);
 
         /// <summary>
         /// SetChildren
@@ -412,7 +663,16 @@ namespace AppBlocks.Models
         /// <param name="items"></param>
         public void SetChildren<T>(List<T> items) where T : Item
         {
-            Children = items.Where(i => i.ParentId == Id);
+            if (Children.Any())
+            {
+                foreach (var item in Children)
+                {
+                    var parent = items.FirstOrDefault(i => i.Id == item.ParentId);
+                    if (!parent.Children.Contains(item)) parent.Children.ToList().Add(item);
+                }
+            }
+
+            Children = items?.Where(i => i.ParentId == Id).ToList<Item>();
 
             foreach (var item in Children)
             {
@@ -425,26 +685,34 @@ namespace AppBlocks.Models
         /// </summary>
         /// <returns></returns>
         public virtual string ToJson() => JsonSerializer.Serialize(this);//App.SerializerService.SerializeAsync(this).Result;
+        public virtual string ToXml() {
+            using (var stringwriter = new System.IO.StringWriter())
+            {
+                var serializer = new XmlSerializer(GetType());
+                serializer.Serialize(stringwriter, this);
+                return stringwriter.ToString();
+            }
+        }
 
         /// <summary>
         /// ToFile
         /// </summary>
         /// <returns></returns>
-        public bool ToFile<T>(string filePath = null) where T : Item
+        public bool ToFile<T>(string filePath = null, string schema = "json") where T : Item
         {
             try
             {
                 _logger?.LogInformation($"{typeof(T).Name}.ToFile({filePath}): {DateTime.Now.ToShortTimeString()} started");
 
-                if (string.IsNullOrEmpty(filePath)) filePath = GetFilename(typeof(T).Name);
+                if (string.IsNullOrEmpty(filePath)) filePath = GetFilename(typeof(T).Name, schema);
 
                 if (string.IsNullOrEmpty(filePath) || filePath.EndsWith($"{typeof(T).Name}..json")) return false;
 
-                new FileInfo(filePath).Directory.Create();
-                var content = ToJson();
-
+                var content = schema == "xml" ? ToXml() : ToJson();
                 if (string.IsNullOrEmpty(content)) return false;
 
+                if (schema == "json") filePath = filePath.Replace("json", schema);
+                new FileInfo(filePath).Directory.Create();
                 File.WriteAllText(filePath, content);
             }
             catch (Exception exception)

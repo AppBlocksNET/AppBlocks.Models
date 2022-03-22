@@ -1,6 +1,7 @@
 ﻿using AppBlocks.Config;
 using AppBlocks.Models.Commands;
 using AppBlocks.Models.Extensions;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,13 +16,17 @@ namespace AppBlocks.Models
     [Serializable]
     public static class Context
     {
+        public static IConfiguration Configuration { get; set; }
         public static Dictionary<string, string> AppSettings = Factory.GetConfig()?.AppSettings();
+        //public static List<string> AppSettings => Configuration?.GetSection("AppSettings")?.GetChildren()?.Select(x => x.Value)?.ToList();
+
         public static string ApiId = AppSettings?.GetValueOrDefault("AppBlocks:AppBlocks.ApiId", GroupId);
 
         public static string AppName { get; internal set; }
         public static string Name => Assembly.GetCallingAssembly().FullName;
         public static string Version => Assembly.GetCallingAssembly().GetName().Version.ToString();
 
+        //public static string AppBlocksBlocksServiceUrl => Configuration?.GetSection("AppSettings")?.GetChildren()?.FirstOrDefault(x => x.Key == "AppBlocks.BlocksServiceUrl")?.Value;
         public static string AppBlocksServiceUrl = AppSettings?.GetValueOrDefault("AppBlocks:AppBlocks.ServiceUrl", "https://appblocks.net/api/");
         public static string AppBlocksBlocksServiceUrl = AppSettings?.GetValueOrDefault("AppBlocks:AppBlocks.BlocksServiceUrl", "https://appblocks.net/api/blocks/index/");
 
@@ -29,6 +34,38 @@ namespace AppBlocks.Models
         public static Item Group { get; set; }
         public static string GroupTypeId = AppSettings.GetValueOrDefault("AppBlocks:AppBlocks.GroupTypeId", "78618B97-39FF-EA11-A38B-BC9A78563412");
 
+
+        
+        //public static ILoggerFactory Logger { get; set; }
+
+        public static string AppTitle => Configuration?.GetSection("AppSettings")?.GetChildren()?.FirstOrDefault(x => x.Key == "AppTitle")?.Value;
+        public static string Id => Configuration?.GetSection("AppSettings")?.GetChildren()?.FirstOrDefault(x => x.Key == "Id")?.Value;
+        public static string ApiKey => Configuration?.GetSection("AppSettings")?.GetChildren()?.FirstOrDefault(x => x.Key == "ApiKey")?.Value;
+        public static string ApiSiteName => Configuration?.GetSection("AppSettings")?.GetChildren()?.FirstOrDefault(x => x.Key == "ApiSiteName")?.Value;
+        
+        
+        public static List<string> FeatureFlags => Configuration?.GetSection("FeatureFlags")?.GetChildren()?.Select(x => x.Value)?.ToList();
+        public static List<string> LoginProviders => Configuration?.GetSection("LoginProviders")?.GetChildren()?.Select(x => x.Value)?.ToList();
+        public static string EmailLoginProviderUrl => Configuration?.GetSection("AppSettings")?.GetChildren()?.FirstOrDefault(x => x.Key == "EmailLoginProviderUrl")?.Value;
+        //public static AppBlocksApi AppBlocksApi => new AppBlocksApi();
+        public static string AppBlocksId => Configuration?.GetSection("AppSettings")?.GetChildren()?.FirstOrDefault(x => x.Key == "AppBlocksId")?.Value;
+        public static string AppBlocksUrl => Configuration?.GetSection("AppSettings")?.GetChildren()?.FirstOrDefault(x => x.Key == "AppBlocksUrl")?.Value;
+        public static List<Item> AppBlocks = new List<Item>();
+        //public static Item Group { get; set; }
+        public static Item GroupSettings => Group?.Children?.GetChild("_");
+        public static ObservableCollection<Item> BodyList => Group?.Children?.GetChild("Home")?.Children?.Where(i => !i.Name.StartsWith("_")).ToObservableCollection();
+        //i.ParentId == $"{App.AppTitle} Home" && 
+        //public static ObservableCollection<Item> MainMenuList => (Group?.Children ?? new List<Item> { new Item { Name = "Home", Title = "Home" } })?.Where(i => !i.Name.StartsWith("_")).ToObservableCollection();
+        public static ObservableCollection<Item> MainMenuList => (GroupSettings?.Children.GetChild("Home") ?? new Item { Name = "Home", Title = "Home" })?.Children?.Where(i => !i.Name.StartsWith("_")).ToObservableCollection();
+        //public static ObservableCollection<Item> UserMenuList => Group?.Children?.Where(i => !i.Name.StartsWith("_")).ToObservableCollection();
+        public static ObservableCollection<Item> UserMenuList => (GroupSettings?.Children.GetChild("Tools") ?? new Item { Name = "Tools", Title = "Tools" })?.Children?.Where(i => !i.Name.StartsWith("_")).ToObservableCollection();
+        //public static ObservableCollection<Item> UserMenuList => Group?.Children?.Where(i => !i.Name.StartsWith("_")).ToObservableCollection();
+
+        /// <summary>
+        /// NewsFeed - TODO:(Group.Children?.FirstOrDefault(i => i.Name == "Feed") ?? .. _/Feeds/collection
+        /// </summary>
+        public static ObservableCollection<Item> NewsFeed => (Group?.Children?.FirstOrDefault(i => i.Name == "News")?.Children ?? new List<Item> { new Item { Name = "Default", Title = "Welcome!" } })?.Where(i => !i.Name.StartsWith("_")).ToObservableCollection();
+        
         public static bool ForceLogin = true;
 
         public static bool IsAuthenticated { get { return currentUser != null && !string.IsNullOrEmpty(currentUser.Id); } }
@@ -142,15 +179,6 @@ namespace AppBlocks.Models
         //private static ISettingsService SettingsService;
 
         //public static List<Library> Library { get; set; }
-
-        public static ObservableCollection<Item> BodyList => Group?.Children?.GetChild("Home")?.Children?.Where(i => !i.Name.StartsWith("_")).ToObservableCollection();
-
-        public static ObservableCollection<Item> MainMenuList => (Group?.Children ?? new List<Item> { new Item { Name = "Home", Title = "Home" } })?.Where(i => !i.Name.StartsWith("_")).ToObservableCollection();
-        public static ObservableCollection<Item> UserMenuList => Group?.Children?.Where(i => !i.Name.StartsWith("_")).ToObservableCollection();
-        /// <summary>
-        /// NewsFeed - TODO:(Group.Children?.FirstOrDefault(i => i.Name == "Feed") ?? .. _/Feeds/collection
-        /// </summary>
-        public static ObservableCollection<Item> NewsFeed => (Group?.Children?.FirstOrDefault(i => i.Name == "News")?.Children ?? new List<Item> { new Item { Name = "Default", Title = "Welcome!" } })?.Where(i => !i.Name.StartsWith("_")).ToObservableCollection();
 
         public static event CurrentUserChanged OnCurrentUserChanged;
 

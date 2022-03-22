@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0">
+	<channel>
+		<title><![CDATA[test]]></title>
+		<link><![CDATA[http://www.meetup.com/TulsaDevelopers-net/events/]]></link>
+		<description><![CDATA[test]]></description>
+		<copyright>test</copyright>
+		<lastBuildDate>Tue, 11 Jan 2022 17:40:56 EST</lastBuildDate>
+		<item>
+			<title><![CDATA[test]]></title>
+			<guid isPermaLink="true">https://www.meetup.com/TulsaDevelopers-net/events/284623190/</guid>
+			<description><![CDATA[<p><img style="float:left; margin-right:4px" src="https://secure.meetupstatic.com/photos/event/8/1/d/d/event_452553245.jpeg" alt="photo" class="photo" />Tulsa Developers Association</p> <p><p>\*\*HYBRID EVENT \*\*<br/>In Person and Virtual !!!</p> <p>University of Tulsa<br/>430 S Gary Pl<br/>room KEH 2015<br/>Tulsa, OK</p> <p>Topic:<br/>As applications are becoming more cloud-based and cloud-native, developers need to understand network services and architecture.<br/>This talk is for developers who need to understand more about network topology options and related services. Cloud providers offer network control options in various ways. Come to this presentation to learn about network options specific to Azure and AWS and how to better leverage network services, including security options.</p> <p>Bio:<br/>Sean Whitesell is a Microsoft MVP and has been the President of Tulsa .NET User Group since 2009. He is also a Cloud Architect with TokenEx. Sean has been programming and playing with electronics for over 20 years. He also has multiple black belts in martial arts.</p> </p> <p>Tulsa,    - USA</p> <p>Tuesday, March 22 at 6:15 PM</p> <p>25</p> <p>https://www.meetup.com/TulsaDevelopers-net/events/284623190/</p> ]]></description>
+			<pubDate>Wed, 16 Mar 2022 10:47:02 EDT</pubDate>
+		</item>
+	</channel>
+</rss>

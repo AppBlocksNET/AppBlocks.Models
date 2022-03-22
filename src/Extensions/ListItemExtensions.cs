@@ -20,7 +20,7 @@ namespace AppBlocks.Models.Extensions
             foreach (var item in results)
             {
                 var children = results.Where(i => i.ParentId == item.Id);
-                item.Children = children;
+                item.Children = children.ToList();
                 foreach (var childItem in item.Children)
                 {
                     childItem.SetChildren(results);

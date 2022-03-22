@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace AppBlocks.Models.Tests
     public class ItemFromTests
     {
         private static Assembly entryAssembly;
-        public static Assembly EntryAssembly => entryAssembly ?? (entryAssembly = Assembly.GetEntryAssembly());
+        public static Assembly EntryAssembly => entryAssembly ?? (entryAssembly = Assembly.GetEntryAssembly()) ?? (entryAssembly = Assembly.GetExecutingAssembly());
 
         private static string assemblyName;
         public static string AssemblyName => assemblyName ?? (assemblyName = EntryAssembly.GetName().Name);
@@ -59,9 +60,10 @@ namespace AppBlocks.Models.Tests
         [TestMethod]
         public void FromJsonFileTest()
         {
-            var item = Item.FromJson<Item>("test");
+            var item = Item.FromJson<Item>(".\\data-tests\\ItemDeserializationTest.json");//?.FirstOrDefault();
             Assert.IsTrue(item != null);
             Assert.IsTrue(item.Title == "test");
+            //Assert.IsTrue(item.Children.Count() > 2);
         }
 
         [TestMethod]
@@ -76,34 +78,85 @@ namespace AppBlocks.Models.Tests
         public void FromJsonFileBadTest()
         {
             var item = Item.FromJson<Item>($"{AssemblyName}.CurrentUser");
+            Assert.IsTrue(item != null);
+            Assert.IsTrue(item.Name == $"{AssemblyName}.CurrentUser");
+            //Assert.IsTrue(item.Children.Count() > 2);
+        }
+
+        [TestMethod]
+        public void FromJsonListFileDataTest()
+        {
+            var item = Item.FromJsonList<List<Item>>(".\\data-tests\\ItemChildrenDeserializationTest.json").FirstOrDefault();
+            Assert.IsTrue(item != null);
+            Assert.IsTrue(item.Children.Count() > 2);
+            item.ToFile<Item>();
+        }
+
+        [TestMethod]
+        public void FromJsonListFileTest()
+        {
+            var items = Item.FromJsonList<List<Item>>(".\\data-tests\\ItemDeserializationTest.json");//?.FirstOrDefault();
+            Assert.IsTrue(items != null);
+            var item = items.FirstOrDefault();
+            Assert.IsTrue(item.Title == "test");
+        }
+
+        [TestMethod]
+        public void FromJsonListFileChildrenTest()
+        {
+            var item = Item.FromJsonList<List<Item>>(".\\data-tests\\ItemChildrenDeserializationTest.json")?.FirstOrDefault();
+            Assert.IsTrue(item != null);
+            Assert.IsTrue(item.Children.Count() > 2);
+        }
+
+        [TestMethod]
+        public void FromJsonListFileBadTest()
+        {
+            var item = Item.FromJsonList<List<Item>>($"{AssemblyName}.CurrentUser")?.FirstOrDefault();
             Assert.IsTrue(item == null);
             //Assert.IsTrue(item.Children.Count() > 2);
         }
 
         [TestMethod]
-        public void FromServiceDefaultGroupTest()
+        public void FromServiceListDefaultGroupTest()
         {
-            var item = Item.FromService<Item>();
+            var item = Item.FromServiceList<List<Item>>().FirstOrDefault();
             Assert.IsTrue(item != null);
-            Assert.IsTrue(item.Children.Count() > 2);
+            Assert.IsTrue(item.Children.Count() > 0);
         }
 
         [TestMethod]
         public void FromServiceTest()
         {
-            var item = new Item(Context.GroupId); // Item.FromService<Item>(Models.Settings.GroupId);
+            var item = Item.FromService<Item>(Context.GroupId); // Item.FromService<Item>(Models.Settings.GroupId);
             Assert.IsTrue(item != null);
-            Assert.IsTrue(item.Children.Count() > 2);
+            Assert.IsTrue(item.Children.Count() > 0);
         }
 
         [TestMethod]
-        public void FromServiceCleanTest()
+        public void FromServiceListCleanTest()
         {
             if (System.IO.File.Exists(Common.GetFilepath(Context.GroupId))) System.IO.File.Delete(Common.GetFilepath(Context.GroupId));
             Assert.IsFalse(System.IO.File.Exists(Common.GetFilepath(Context.GroupId)));
-            var item = Item.FromService<Item>();
+            var item = Item.FromServiceList<List<Item>>().FirstOrDefault();
             Assert.IsTrue(item != null);
-            Assert.IsTrue(item.Children.Count() > 2);
+            Assert.IsTrue(item.Children.Count() > 0);
         }
+        [TestMethod]
+        public void FromXmlFileTest()
+        {
+            var item = Item.FromXml<Item>(".\\data-tests\\item.test.xml");//?.FirstOrDefault();
+            Assert.IsTrue(item != null);
+            Assert.IsTrue(item.Title == "test");
+        }
+
+        //[TestMethod]
+        //public void FromXmlListFileTest()
+        //{
+        //    var items = Item.FromXmlList<List<Item>>(".\\data-tests\\item.test.xml");//?.FirstOrDefault();
+        //    Assert.IsTrue(items != null);
+        //    var item = items.FirstOrDefault();
+        //    Assert.IsTrue(item.Title == "test");
+        //}
     }
 }

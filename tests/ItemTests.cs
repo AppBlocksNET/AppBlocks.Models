@@ -103,9 +103,17 @@ namespace AppBlocks.Models.Tests
         public void FromFileTest()
         {//TODO: read the data\itemtest.json file - a known filename\location
             var testItem = new Item("test");
+            Assert.IsTrue(testItem != null);
+            Assert.IsTrue(testItem.Title == "test");
             var write = testItem.ToFile<Item>();
             Assert.IsTrue(write);
             Assert.IsTrue(System.IO.File.Exists(testItem.GetFilename()));
+
+            //var xml = testItem.ToXml();
+            write = testItem.ToFile<Item>(schema:"xml");
+            Assert.IsTrue(write);
+            var filePath = testItem.GetFilename(schema:"xml");
+            Assert.IsTrue(System.IO.File.Exists(filePath));
         }
 
         //[TestMethod]

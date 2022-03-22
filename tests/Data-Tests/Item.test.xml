@@ -2,6 +2,7 @@
 <Item xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Id>test</Id>
   <Name>test</Name>
+  <Path>test</Path>
   <Title>test</Title>
   <TypeId>Item</TypeId>
   <Created>2022-03-21T17:53:07.5104663-05:00</Created>

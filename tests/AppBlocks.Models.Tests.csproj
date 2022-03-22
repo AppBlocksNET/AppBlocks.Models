@@ -18,7 +18,7 @@
   <ItemGroup>
     <None Remove="appsettings.json" />
     <None Remove="Data-Tests\AppBlocksApiAllTests.json" />
-    <None Remove="Data-Tests\Item.test.xml" />
+    <None Remove="Data-Tests\Item.Test.xml" />
     <None Remove="Data-Tests\ItemChildrenDeserializationTest.json" />
     <None Remove="Data-Tests\ItemDeserializationTest.json" />
     <None Remove="Data-Tests\ItemDeserializationTest.xml" />

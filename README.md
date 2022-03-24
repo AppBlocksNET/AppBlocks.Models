@@ -9,10 +9,10 @@ PM> ```Install-Package AppBlocks.Models```
 [AppBlocks](https://appblocks.net), [David Walker](https://radicaldave.com), [Radical Dave](https://github.com/radical-dave), [Sitecore Dave](https://github.com/sitecoredave)
 
 ## Release Notes
-0.0.23 - added exception handling to Common.FromXmlList
-0.0.22 - added Items,GetUrl,adjusted FromXml
-0.0.21 - added ItemExtensions.FindChild
-0.0.20 - From cleanup, added FromXml
+- 0.0.23 - added exception handling to Common.FromXmlList
+- 0.0.22 - added Items,GetUrl,adjusted FromXml
+- 0.0.21 - added ItemExtensions.FindChild
+- 0.0.20 - From cleanup, added FromXml
 
 ## License
 MIT License: https://github.com/AppBlocksNet/AppBlocks.Models/blob/main/LICENSE

@@ -22,11 +22,23 @@
     <None Remove="Data-Tests\ItemChildrenDeserializationTest.json" />
     <None Remove="Data-Tests\ItemDeserializationTest.json" />
     <None Remove="Data-Tests\ItemDeserializationTest.xml" />
+    <None Remove="Data-Tests\Rss-Empty.Test.xml" />
+    <None Remove="Data-Tests\rss.test.Results.xml" />
+    <None Remove="Data-Tests\Rss.Test.xml" />
     <None Remove="Data-Tests\UserDeserializationTest.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Data-Tests\AppBlocksApiAllTests.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data-Tests\Rss-Empty.Test.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data-Tests\rss.test.Results.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data-Tests\Rss.Test.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Data-Tests\Item.Test.xml">

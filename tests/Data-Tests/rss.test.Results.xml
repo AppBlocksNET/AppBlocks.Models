@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<items>
+	<item>
+		<children />
+		<fullpath>Groups/Tulsa Game Developers/_</fullpath>
+		<id>_Tulsa Game Developers</id>
+		<icon>fas fa-lock</icon>
+		<image>https://grouplings.blob.core.windows.net/grouplings-groups/JeepersAnonymous/Welcome-Home.jpg</image>
+		<name>_</name>
+		<ownerid>Tulsa Game Developers</ownerid>
+		<parentid>Tulsa Game Developers</parentid>
+		<path>_</path>
+		<title>_</title>
+		<typeid>Library</typeid>
+		<created>2020-09-29T23:39:57.59</created>
+		<creatorid>Tulsa Game Developers</creatorid>
+		<edited>2020-09-29T23:39:57.59</edited>
+		<editorid>Tulsa Game Developers</editorid>
+	</item>
+	<item>
+		<children />
+		<fullpath>Groups/Tulsa Game Developers/Home</fullpath>
+		<id>Tulsa Game Developers-Home</id>
+		<icon>fas fa-cogs</icon>
+		<image>https://grouplings.blob.core.windows.net/grouplings-groups/JeepersAnonymous/Welcome-Home.jpg</image>
+		<name>Home</name>
+		<ownerid>Tulsa Game Developers</ownerid>
+		<parentid>Tulsa Game Developers</parentid>
+		<path>Home</path>
+		<title>Home</title>
+		<typeid>Library</typeid>
+		<created>2020-09-29T23:09:57.59</created>
+		<creatorid>Tulsa Game Developers</creatorid>
+		<edited>2020-09-29T23:09:57.59</edited>
+		<editorid>Tulsa Game Developers</editorid>
+	</item>
+</items>

@@ -8,23 +8,68 @@ using System.Text;
 namespace AppBlocks.Models.Tests
 {
     [TestClass]
-    public class ItemTests
+    public class XmlTests
     {
         [TestMethod]
-        public void ItemDeserializationTest()
+        public void ItemXmlDeserializationTest()
         {
-            var path = $".\\data-tests\\AppBlocksApiAllTests.json";
-            var content = System.IO.File.Exists(path) ? System.IO.File.ReadAllText(path) : "";
-            Assert.IsTrue(!string.IsNullOrEmpty(content), $"{path} not found");
+            var path = $".\\data-tests\\Item.Test.xml";
+            //var content = System.IO.File.Exists(path) ? System.IO.File.ReadAllText(path) : "";
+            //Assert.IsTrue(!string.IsNullOrEmpty(content), $"{path} not found");
 
             //var value = content;
-            var results = System.Text.Json.JsonSerializer.DeserializeAsync<List<Item>>(new MemoryStream(Encoding.UTF8.GetBytes(content))).Result;
-
+            //var results = System.Text.Json.JsonSerializer.DeserializeAsync<List<Item>>(new MemoryStream(Encoding.UTF8.GetBytes(content))).Result;
+            var results = new Item(path);
             Assert.IsTrue(results != null);
 
-            Assert.IsTrue(results.Count > 2);
+            //Assert.IsTrue(results.Count > 0);
         }
 
+        //[TestMethod]
+        //public void ItemXmlListDeserializationTest()
+        //{
+        //    var path = $".\\data-tests\\Items.Test.xml";
+        //    //var content = System.IO.File.Exists(path) ? System.IO.File.ReadAllText(path) : "";
+        //    //Assert.IsTrue(!string.IsNullOrEmpty(content), $"{path} not found");
+
+        //    //var value = content;
+        //    //var results = System.Text.Json.JsonSerializer.DeserializeAsync<List<Item>>(new MemoryStream(Encoding.UTF8.GetBytes(content))).Result;
+        //    var results = new Item(path);
+        //    Assert.IsTrue(results != null);
+
+        //    //Assert.IsTrue(results.Count > 0);
+        //}
+
+        [TestMethod]
+        public void ItemXmlRssEmptyDeserializationTest()
+        {
+            //var path = $".\\data-tests\\Rss.Test.xml";
+            var path = $".\\data-tests\\Rss.Test.Results.xml";
+            //var content = System.IO.File.Exists(path) ? System.IO.File.ReadAllText(path) : "";
+            //Assert.IsTrue(!string.IsNullOrEmpty(content), $"{path} not found");
+
+            //var value = content;
+            //var results = System.Text.Json.JsonSerializer.DeserializeAsync<List<Item>>(new MemoryStream(Encoding.UTF8.GetBytes(content))).Result;
+            var results = Common.FromXmlList<List<Item>>(path);
+            Assert.IsTrue(results != null);
+
+            //Assert.IsTrue(results.Count > 0);
+        }
+
+        [TestMethod]
+        public void ItemXmlRssDeserializationTest()
+        {
+            var path = $".\\data-tests\\Rss.Test.xml";
+            //var content = System.IO.File.Exists(path) ? System.IO.File.ReadAllText(path) : "";
+            //Assert.IsTrue(!string.IsNullOrEmpty(content), $"{path} not found");
+
+            //var value = content;
+            //var results = System.Text.Json.JsonSerializer.DeserializeAsync<List<Item>>(new MemoryStream(Encoding.UTF8.GetBytes(content))).Result;
+            var results = Common.FromXmlList<List<Item>>(path);
+            Assert.IsTrue(results != null);
+
+            //Assert.IsTrue(results.Count > 0);
+        }
         [TestMethod]
         public void ItemChildrenTest()
         {
@@ -113,14 +158,6 @@ namespace AppBlocks.Models.Tests
             Assert.IsTrue(write);
         }
 
-        [TestMethod]
-        public void FromUri()
-        {
-            var url = "https://www.meetup.com/Tulsa-Game-Developers/events/rss";
-            var testItem = new Item(url);
-            Assert.IsTrue(testItem != null);
-            Assert.IsTrue(testItem.Title == "test");
-        }
         [TestMethod]
         public void FromFileTest()
         {//TODO: read the data\itemtest.json file - a known filename\location

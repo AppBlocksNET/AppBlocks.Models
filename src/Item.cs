@@ -13,18 +13,21 @@ using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using System.Xml.Xsl;
 
 namespace AppBlocks.Models
 {
     /// <summary>
     /// Item
     /// </summary>
-    [Serializable]
+    [Serializable, XmlRoot(Namespace = "", IsNullable = false),XmlType("item")]
+    //[XmlObjectWrapper(TupleElementNamesAttribute = "items")]
     public class Item : INotifyPropertyChanged //Item // INotifyPropertyChanged // : Item
     {
         private readonly ILogger<Item> _logger;
@@ -81,15 +84,18 @@ namespace AppBlocks.Models
         public List<Item> Children { get; set; }
 
         [DataMember(Name = "data")]
-        [JsonPropertyName("")]
+        [JsonPropertyName("data")]
+        [XmlElement("data")]
         public string Data { get; set; }
 
         [DataMember(Name = "description")]
         [JsonPropertyName("description")]
+        [XmlElement("description")]
         public string Description { get; set; }
 
-        [JsonPropertyName("fullPath")]
         [NotMapped]
+        [JsonPropertyName("fullpath")]
+        [XmlElement("fullpath")]
         public string FullPath { get; set; }
 
         /// <summary>
@@ -97,18 +103,22 @@ namespace AppBlocks.Models
         /// </summary>
         [DataMember(Name = "id")]
         [JsonPropertyName("id")]
+        [XmlElement("id")]
         public string Id { get; set; }
 
         [DataMember(Name = "icon")]
         [JsonPropertyName("icon")]
+        [XmlElement("icon")]
         public string Icon { get; set; }
 
         [DataMember(Name = "image")]
         [JsonPropertyName("image")]
+        [XmlElement("image")]
         public string Image { get; set; }
 
         [DataMember(Name = "name")]
         [JsonPropertyName("name")]
+        [XmlElement("name")]
         public string Name { get; set; }
 
         [IgnoreDataMember]
@@ -123,8 +133,9 @@ namespace AppBlocks.Models
         [Browsable(false)]
         public Item Owner { get; set; }
 
-        [DataMember(Name = "ownerId")]
+        [DataMember(Name = "ownerid")]
         [JsonPropertyName("ownerid")]
+        [XmlElement("ownerid")]
         public string OwnerId { get; set; }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -136,26 +147,32 @@ namespace AppBlocks.Models
 
         [DataMember(Name = "parentid")]
         [JsonPropertyName("parentid")]
+        [XmlElement("parentid")]
         public string ParentId { get; set; }
 
         [DataMember(Name = "path")]
         [JsonPropertyName("path")]
+        [XmlElement("path")]
         public string Path { get; set; }
 
         [DataMember(Name = "link")]
         [JsonPropertyName("link")]
+        [XmlElement("link")]
         public string Link { get; set; }
 
         [DataMember(Name = "source")]
         [JsonPropertyName("source")]
+        [XmlElement("source")]
         public string Source { get; set; }
 
         [JsonPropertyName("status")]
         [IgnoreDataMember]
+        [XmlElement("status")]
         public string Status { get; set; }
 
         [DataMember(Name = "title")]
         [JsonPropertyName("title")]
+        [XmlElement("title")]
         public string Title { get; set; }
 
         [JsonIgnore]
@@ -163,8 +180,9 @@ namespace AppBlocks.Models
         [Browsable(false)]
         public virtual Item Type { get; set; }
 
-        [DataMember(Name = "typeId")]
+        [DataMember(Name = "typeid")]
         [JsonPropertyName("typeid")]
+        [XmlElement("typeid")]
         public string TypeId { get; set; }
 
         [IgnoreDataMember]
@@ -175,6 +193,7 @@ namespace AppBlocks.Models
 
         [DataMember(Name = "created")]
         [JsonPropertyName("created")]
+        [XmlElement("created")]
         public DateTime Created { get; set; }
 
         [IgnoreDataMember]
@@ -188,12 +207,15 @@ namespace AppBlocks.Models
         [XmlIgnore]
         [Browsable(false)]
         public Item Creator { get; set; }
-        [DataMember(Name = "creatorId")]
+
+        [DataMember(Name = "creatorid")]
         [JsonPropertyName("creatorid")]
+        [XmlElement("creatorid")]
         public string CreatorId { get; set; }
 
         [DataMember(Name = "edited")]
         [JsonPropertyName("edited")]
+        [XmlElement("edited")]
         public DateTime Edited { get; set; }
 
         [IgnoreDataMember]
@@ -202,8 +224,9 @@ namespace AppBlocks.Models
         [Browsable(false)]
         public Item Editor { get; set; }
 
-        [DataMember(Name = "editorId")]
+        [DataMember(Name = "editorid")]
         [JsonPropertyName("editorid")]
+        [XmlElement("editorid")]
         public string EditorId { get; set; }
 
         //public static explicit operator Item(JToken v)
@@ -480,40 +503,7 @@ namespace AppBlocks.Models
         {
             if (uri == null) uri = new Uri(typeof(T).FullName != "AppBlocks.Models.User" ? Context.AppBlocksBlocksServiceUrl + Context.GroupId : Context.AppBlocksServiceUrl + "/account/authenticate");
             //_logger?.LogInformation($"{typeof(Item).Name}.FromUri({uri}) started:{DateTime.Now.ToShortTimeString()}");
-            var content = string.Empty;
-            try
-            {
-                var request = (HttpWebRequest)WebRequest.Create(uri);
-                request.ServerCertificateValidationCallback = (message, cert, chain, errors) => { return true; };
-                // response.GetResponseStream();
-                using (var response = (HttpWebResponse)request.GetResponse())
-                {
-                    //_logger?.LogInformation($"HttpStatusCode:{response.StatusCode}");
-                    var responseValue = string.Empty;
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        var message = $"{typeof(Item).FullName} ERROR: Request failed. Received HTTP {response.StatusCode}";
-                        throw new ApplicationException(message);
-                    }
-
-                    // grab the response
-                    using (var responseStream = response.GetResponseStream())
-                    {
-                        if (responseStream != null)
-                            using (var reader = new StreamReader(responseStream))
-                            {
-                                responseValue = reader.ReadToEnd();
-                            }
-                    }
-
-                    content = responseValue;
-                }
-            }
-            catch (Exception exception)
-            {
-                //_logger?.LogInformation($"{nameof(Item)}.FromUri({uri}) ERROR:{exception.Message} {exception}");
-                Trace.WriteLine($"{nameof(Item)}.FromUri({uri}) ERROR:{exception.Message} {exception}");
-            }
+            var content = Common.GetUrl(uri.ToString());
             //_logger?.LogInformation($"content:{content}");
 
             if (content.StartsWith("<"))
@@ -532,27 +522,30 @@ namespace AppBlocks.Models
         public static T FromXml<T>(string content = null, string xslt = null) where T : Item
         {
             if (string.IsNullOrEmpty(content)) return default;
-            if (string.IsNullOrEmpty(xslt))
+            if (content.StartsWith("http"))
             {
-                //xslt = Children?.FirstOrDefault(i => i.Name.EndsWith("XSL"))?.Data ?? string.Empty;
+                content = Common.GetUrl(content);
             }
-            var xmlFile = Common.FromFile(content);
-            if (!string.IsNullOrEmpty(xmlFile)) content = xmlFile;
-
+            else
+            {
+                var xmlFile = Common.FromFile(content);
+                if (!string.IsNullOrEmpty(xmlFile)) content = xmlFile;
+            }
             //if (uri == null) uri = new Uri(typeof(T).FullName != "AppBlocks.Models.User" ? Context.AppBlocksBlocksServiceUrl + Context.GroupId : Context.AppBlocksServiceUrl + "/account/authenticate");
             //_logger?.LogInformation($"{typeof(Item).Name}.FromUri({uri}) started:{DateTime.Now.ToShortTimeString()}");
 
             //var xmlDoc = new XmlDocument();
             //xmlDoc.LoadXml(content);
             //return (T)Item.FromJson<Item>(Newtonsoft.Json.JsonConvert.SerializeXmlNode(xmlDoc));
-            var serializer = new XmlSerializer(typeof(Item));
-            Item result;
+            //var serializer = new XmlSerializer(typeof(Item));
+            //Item result;
 
-            using (TextReader reader = new StringReader(content))
-            {
-                result = (Item)serializer.Deserialize(reader);
-            }
-            return (T)result;
+            //using (TextReader reader = new StringReader(content))
+            //{
+            //    result = (Item)serializer.Deserialize(reader);
+            //}
+            //return (T)result;
+            return Common.FromXml<T>(content, xslt);
         }
 
         /// <summary>
@@ -563,10 +556,6 @@ namespace AppBlocks.Models
         public static T FromXmlList<T>(string content = null, string xslt = null) where T : List<Item>
         {
             if (string.IsNullOrEmpty(content)) return default;
-            if (string.IsNullOrEmpty(xslt))
-            {
-                //xslt = item?.Children?.FirstOrDefault(i => i.Name.EndsWith("XSL"))?.Data ?? string.Empty;
-            }
             var xmlFile = Common.FromFile(content);
             if (!string.IsNullOrEmpty(xmlFile)) content = xmlFile;
 
@@ -577,14 +566,9 @@ namespace AppBlocks.Models
             //xmlDoc.LoadXml(content);
             //return (T)FromJsonList<List<Item>>(Newtonsoft.Json.JsonConvert.SerializeXmlNode(xmlDoc));
             
-            var serializer = new XmlSerializer(typeof(List<Item>));
-            List<Item> results;
-
-            using (TextReader reader = new StringReader(content))
-            {
-                results = (List<Item>)serializer.Deserialize(reader);
-            }
-            return (T)results;
+            //var serializer = new XmlSerializer(typeof(List<Item>));
+            //List<Item> results;
+            return Common.FromXmlList<T>(content, xslt);
         }
 
         //public static Item FromJson<Item>(string path) => FromJson<Item>(path);

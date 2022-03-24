@@ -41,10 +41,26 @@ namespace AppBlocks.Models.Tests
         //}
 
         [TestMethod]
+        public void ItemXmlMeetupRssDeserializationTest()
+        {
+            //var path = $".\\data-tests\\Rss.Test.xml";
+            var path = $".\\data-tests\\meetup.Test.xml";
+            //var content = System.IO.File.Exists(path) ? System.IO.File.ReadAllText(path) : "";
+            //Assert.IsTrue(!string.IsNullOrEmpty(content), $"{path} not found");
+
+            //var value = content;
+            //var results = System.Text.Json.JsonSerializer.DeserializeAsync<List<Item>>(new MemoryStream(Encoding.UTF8.GetBytes(content))).Result;
+            var results = Common.FromXmlList<List<Item>>(path);
+            Assert.IsTrue(results != null);
+
+            //Assert.IsTrue(results.Count > 0);
+        }
+        
+        [TestMethod]
         public void ItemXmlRssEmptyDeserializationTest()
         {
             //var path = $".\\data-tests\\Rss.Test.xml";
-            var path = $".\\data-tests\\Rss.Test.Results.xml";
+            var path = $".\\data-tests\\Rss.Test.xml";
             //var content = System.IO.File.Exists(path) ? System.IO.File.ReadAllText(path) : "";
             //Assert.IsTrue(!string.IsNullOrEmpty(content), $"{path} not found");
 

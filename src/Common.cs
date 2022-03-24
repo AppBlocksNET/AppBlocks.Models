@@ -112,7 +112,7 @@ namespace AppBlocks.Models
 
         public static T FromXmlList<T>(string xml, string xslt = null) where T : List<Item>
         {
-            List<Item> results;
+            var results = new List<Item>();
 
             var file = FromFile(xml);
             if (!string.IsNullOrEmpty(file)) xml = file;
@@ -120,13 +120,6 @@ namespace AppBlocks.Models
             file = FromFile(xslt);
             if (!string.IsNullOrEmpty(file)) xslt = file;
 
-            //var serializer = new XmlSerializer(typeof(List<Item>));
-            var serializer = new XmlSerializer(typeof(Items));
-            XmlDocument xmlDocument = new XmlDocument();
-            StringBuilder output = new StringBuilder();
-            XslCompiledTransform xslCompiledTransform = new XslCompiledTransform();
-            XmlWriterSettings writerSettings = new XmlWriterSettings { OmitXmlDeclaration = true };
-            xmlDocument.LoadXml(xml);
             if (xml.Contains("<rss") && string.IsNullOrEmpty(xslt))
             {
                 //xslt = Children?.FirstOrDefault(i => i.Name.EndsWith("XSL"))?.Data ?? string.Empty;
@@ -134,32 +127,49 @@ namespace AppBlocks.Models
                 var itemXslt = "<xsl:for-each select=\"channel/item\"><Item xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><xsl:value-of select=\"description\"/></Item></xsl:for-each>";
                 xslt = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><xsl:stylesheet version=\"3.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:itunes=\"http://www.itunes.com/dtds/podcast-1.0.dtd\"><xsl:output method=\"xml\" version=\"1.0\" encoding=\"UTF-8\" indent=\"yes\"/><xsl:template match=\"rss\">{itemXslt}</xsl:template><xsl:template match=\"description\"><xsl:value-of select=\".\"/></xsl:template></xsl:stylesheet>";
             }
-            if (xslt != null)
+
+            //var serializer = new XmlSerializer(typeof(List<Item>));
+            var serializer = new XmlSerializer(typeof(Items));
+            XmlDocument xmlDocument = new XmlDocument();
+            StringBuilder output = new StringBuilder();
+            XslCompiledTransform xslCompiledTransform = new XslCompiledTransform();
+            XmlWriterSettings writerSettings = new XmlWriterSettings { OmitXmlDeclaration = true };
+
+            try
             {
-                //xslCompiledTransform.Load(xslt);//path
-                //using (StringReader sr = new StringReader(xslt))
-                //{
-                //    using (XmlReader xr = XmlReader.Create(sr))
-                //    {
-                //        xslCompiledTransform.Load(xr);
-                //    }
-                //}
-                xslCompiledTransform.Parse(xslt);
-                using (XmlWriter transformedData = XmlWriter.Create(output, writerSettings))
+                xmlDocument.LoadXml(xml);
+
+                if (xslt != null)
                 {
-                    xslCompiledTransform.Transform(xmlDocument, transformedData);
-                    using (StringReader xmlString = new StringReader(output.ToString()))
+                    //xslCompiledTransform.Load(xslt);//path
+                    //using (StringReader sr = new StringReader(xslt))
+                    //{
+                    //    using (XmlReader xr = XmlReader.Create(sr))
+                    //    {
+                    //        xslCompiledTransform.Load(xr);
+                    //    }
+                    //}
+                    xslCompiledTransform.Parse(xslt);
+                    using (XmlWriter transformedData = XmlWriter.Create(output, writerSettings))
                     {
-                        results = (Items)serializer.Deserialize(xmlString);
+                        xslCompiledTransform.Transform(xmlDocument, transformedData);
+                        using (StringReader xmlString = new StringReader(output.ToString()))
+                        {
+                            results = (Items)serializer.Deserialize(xmlString);
+                        }
+                    }
+                }
+                else
+                {
+                    using (TextReader reader = new StringReader(xml))
+                    {
+                        results = (Items)serializer.Deserialize(reader);
                     }
                 }
             }
-            else
+            catch (Exception exception)
             {
-                using (TextReader reader = new StringReader(xml))
-                {
-                    results = (Items)serializer.Deserialize(reader);
-                }
+                Debug.WriteLine($"Common.FromXmlList<T>({xml},{xslt}) - ERROR:{exception.Message}");
             }
             return (T)results;
         }

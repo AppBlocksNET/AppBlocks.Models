@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net47;net471;net48;net5</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net47;net471;net48;net5;net6.0</TargetFrameworks>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>https://appblocks.net</PackageProjectUrl>
@@ -9,14 +9,14 @@
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>The BASE of ALL THE THINGS</Description>
-    <AssemblyVersion>0.0.23.0</AssemblyVersion>
-    <FileVersion>0.0.23.0</FileVersion>
-    <Version>0.0.24</Version>
+    <AssemblyVersion>0.0.25.0</AssemblyVersion>
+    <FileVersion>0.0.25.0</FileVersion>
+    <Version>0.0.25</Version>
     <Company>AppBlocks, David Walker, Radical Dave</Company>
     <Authors>David Walker, Radical Dave</Authors>
     <Copyright>AppBlocks, David Walker, Radical Dave</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>added FromDictionary, Mongo and MySql support</PackageReleaseNotes>
+    <PackageReleaseNotes>added targetframeworks: net6.0</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -37,7 +37,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
-    <PackageReference Include="MongoDB.Driver.Core" Version="2.15.0" />
+    <PackageReference Include="MongoDB.Driver.Core" Version="2.13.0" />
     <PackageReference Include="MongoRepository" Version="1.6.11" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />

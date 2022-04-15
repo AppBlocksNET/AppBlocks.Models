@@ -9,6 +9,7 @@ PM> ```Install-Package AppBlocks.Models```
 [AppBlocks](https://appblocks.net), [David Walker](https://radicaldave.com), [Radical Dave](https://github.com/radical-dave), [Sitecore Dave](https://github.com/sitecoredave)
 
 ## Release Notes
+- 0.0.25 - added targetframeworks: net6.0
 - 0.0.24 - added FromDictionary, Mongo and MySql support
 - 0.0.23 - added exception handling to Common.FromXmlList
 - 0.0.22 - added Items,GetUrl,adjusted FromXml

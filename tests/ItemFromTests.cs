@@ -40,6 +40,28 @@ namespace AppBlocks.Models.Tests
         }
 
         [TestMethod]
+        public void FromDictionaryTest()
+        {
+            var path = ".\\data-tests\\ItemChildrenDeserializationTest.json";
+            //var folder = ApplicationData.Current.LocalFolder;
+            //var file = folder.GetFileAsync(path).Result;
+            //var fileStream = await file.OpenReadAsync(path);
+            //var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            //var inputStream = fileStream.GetInputStreamAt(0);
+
+            //var reader = new FileDataReader(path);
+            //var reader = IDataReader(fileStream);
+
+            //var reader = new System.Windows.Storage.Streams.DataReader(input);
+            //var results = new Sql().ExecuteAsync.Results
+            //var item = Item.FromDataReader(".\\data-tests\\ItemChildrenDeserializationTest.json");
+            //var item = Item.FromDataReader(reader);
+            var item = Item.FromDictionary(new Dictionary<string, string> { ["path"] = path });
+            Assert.IsTrue(item != null);
+            //Assert.IsTrue(item.Children.Count() > 2);
+            //item.ToFile();
+        }
+        [TestMethod]
         public void FromEnumerableReaderTest()
         {
             //var item = Item.FromDataReader(".\\data-tests\\ItemChildrenDeserializationTest.json");

@@ -2,6 +2,9 @@
 using AppBlocks.Models.Extensions;
 using AppBlocks.Models.Services;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoRepository;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,8 +30,10 @@ namespace AppBlocks.Models
     /// Item
     /// </summary>
     [Serializable, XmlRoot(Namespace = "", IsNullable = false),XmlType("item")]
+    [BsonIgnoreExtraElements]
+    [BsonKnownTypes(typeof(Item))]
     //[XmlObjectWrapper(TupleElementNamesAttribute = "items")]
-    public class Item : INotifyPropertyChanged //Item // INotifyPropertyChanged // : Item
+    public class Item : Entity, INotifyPropertyChanged //Item // INotifyPropertyChanged // : Item
     {
         private readonly ILogger<Item> _logger;
         public event PropertyChangedEventHandler PropertyChanged;
@@ -86,11 +91,13 @@ namespace AppBlocks.Models
         [DataMember(Name = "data")]
         [JsonPropertyName("data")]
         [XmlElement("data")]
+        [BsonElement("data")]
         public string Data { get; set; }
 
         [DataMember(Name = "description")]
         [JsonPropertyName("description")]
         [XmlElement("description")]
+        [BsonElement("description")]
         public string Description { get; set; }
 
         [NotMapped]
@@ -104,21 +111,26 @@ namespace AppBlocks.Models
         [DataMember(Name = "id")]
         [JsonPropertyName("id")]
         [XmlElement("id")]
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
         [DataMember(Name = "icon")]
         [JsonPropertyName("icon")]
         [XmlElement("icon")]
+        [BsonElement("icon")]
         public string Icon { get; set; }
 
         [DataMember(Name = "image")]
         [JsonPropertyName("image")]
         [XmlElement("image")]
+        [BsonElement("image")]
         public string Image { get; set; }
 
         [DataMember(Name = "name")]
         [JsonPropertyName("name")]
         [XmlElement("name")]
+        [BsonElement("name")]
         public string Name { get; set; }
 
         [IgnoreDataMember]
@@ -136,6 +148,7 @@ namespace AppBlocks.Models
         [DataMember(Name = "ownerid")]
         [JsonPropertyName("ownerid")]
         [XmlElement("ownerid")]
+        [BsonElement("ownerid")]
         public string OwnerId { get; set; }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -148,31 +161,37 @@ namespace AppBlocks.Models
         [DataMember(Name = "parentid")]
         [JsonPropertyName("parentid")]
         [XmlElement("parentid")]
+        [BsonElement("parentid")]
         public string ParentId { get; set; }
 
         [DataMember(Name = "path")]
         [JsonPropertyName("path")]
         [XmlElement("path")]
+        [BsonElement("path")]
         public string Path { get; set; }
 
         [DataMember(Name = "link")]
         [JsonPropertyName("link")]
         [XmlElement("link")]
+        [BsonElement("link")]
         public string Link { get; set; }
 
         [DataMember(Name = "source")]
         [JsonPropertyName("source")]
         [XmlElement("source")]
+        [BsonElement("source")]
         public string Source { get; set; }
 
         [JsonPropertyName("status")]
         [IgnoreDataMember]
         [XmlElement("status")]
+        [BsonElement("status")]
         public string Status { get; set; }
 
         [DataMember(Name = "title")]
         [JsonPropertyName("title")]
         [XmlElement("title")]
+        [BsonElement("title")]
         public string Title { get; set; }
 
         [JsonIgnore]
@@ -183,6 +202,7 @@ namespace AppBlocks.Models
         [DataMember(Name = "typeid")]
         [JsonPropertyName("typeid")]
         [XmlElement("typeid")]
+        [BsonElement("typeid")]
         public string TypeId { get; set; }
 
         [IgnoreDataMember]
@@ -194,6 +214,7 @@ namespace AppBlocks.Models
         [DataMember(Name = "created")]
         [JsonPropertyName("created")]
         [XmlElement("created")]
+        [BsonElement("created")]
         public DateTime Created { get; set; }
 
         [IgnoreDataMember]
@@ -211,11 +232,13 @@ namespace AppBlocks.Models
         [DataMember(Name = "creatorid")]
         [JsonPropertyName("creatorid")]
         [XmlElement("creatorid")]
+        [BsonElement("creatorid")]
         public string CreatorId { get; set; }
 
         [DataMember(Name = "edited")]
         [JsonPropertyName("edited")]
         [XmlElement("edited")]
+        [BsonElement("edited")]
         public DateTime Edited { get; set; }
 
         [IgnoreDataMember]
@@ -227,6 +250,7 @@ namespace AppBlocks.Models
         [DataMember(Name = "editorid")]
         [JsonPropertyName("editorid")]
         [XmlElement("editorid")]
+        [BsonElement("editorid")]
         public string EditorId { get; set; }
 
         //public static explicit operator Item(JToken v)
@@ -261,6 +285,30 @@ namespace AppBlocks.Models
             Status = r["status"] == null || r["status"] is DBNull ? null : r["status"].ToString(),
             Title = r["title"] == null || r["title"] is DBNull ? null : r["title"].ToString(),
             TypeId = r["typeid"] == null || r["typeid"] is DBNull ? null : r["typeid"].ToString()
+        }).ToList();
+
+        public static IEnumerable<Item> FromDictionary(Dictionary<string, string> s) => s.Select(r => new Item
+        {
+            //for (int i = 0; i < r.FieldCount; i++) { //TODO: Do this dynamically?!
+            Created = s["created"] == null || s["created"] is null ? DateTime.MinValue : DateTime.Parse(s["created"].ToString()),
+            CreatorId = s["creatorid"] == null || s["creatorid"] is null ? null : s["creatorid"].ToString(),
+            Data = s["data"] == null || s["data"] is null ? null : s["data"].ToString(),
+            Description = s["description"] == null || s["description"] is null ? null : s["description"].ToString(),
+            Edited = s["updated"] == null || s["updated"] is null ? DateTime.MinValue : DateTime.Parse(s["updated"].ToString()),
+            EditorId = s["EditorId"] == null || s["EditorId"] is null ? null : s["EditorId"].ToString(),
+            FullPath = s["FullPath"] == null || s["FullPath"] == null || s["FullPath"] is null ? null : s["FullPath"].ToString(),
+            Icon = s["icon"] == null || s["icon"] is null ? null : s["icon"].ToString(),
+            Id = s["id"] == null || s["id"] is null ? null : s["id"].ToString(),
+            Image = s["image"] == null || s["image"] is null ? null : s["image"].ToString(),
+            Link = s["link"] == null || s["link"] is null ? null : s["link"].ToString(),
+            Name = s["created"] == null || s["created"] is null ? null : s["name"].ToString(),
+            OwnerId = s["ownerid"] == null || s["ownerid"] is null ? null : s["ownerid"].ToString(),
+            ParentId = s["parentid"] == null || s["parentid"] is null ? null : s["parentid"].ToString(),
+            Path = s["path"] == null || s["path"] is null ? null : s["path"].ToString(),
+            Source = s["source"] == null || s["source"] is null ? null : s["source"].ToString(),
+            Status = s["status"] == null || s["status"] is null ? null : s["status"].ToString(),
+            Title = s["title"] == null || s["title"] is null ? null : s["title"].ToString(),
+            TypeId = s["typeid"] == null || s["typeid"] is null ? null : s["typeid"].ToString()
         }).ToList();
 
         /// <summary>
